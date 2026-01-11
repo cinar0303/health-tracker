@@ -111,4 +111,43 @@ canvas {
   display: block;      /* required for centering */
 }
 
+/* Water input + quick buttons in one row */
+.water-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* Override small-input for grid usage */
+.water-row .small-input {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+/* Compact quick buttons */
+.quick-btn {
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 10px;
+  background-color: #2f80ff;
+  color: white;
+  border: none;
+  height: 34px;
+}
+
+.quick-btn:active {
+  opacity: 0.85;
+}
+
+
+
+
+
+
+
+
+
 
