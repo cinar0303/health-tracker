@@ -99,4 +99,9 @@ canvas {
   padding: 8px;
 }
 
+.small-input {
+  height: 34px;
+  font-size: 14px;
+}
+
 
