@@ -1,8 +1,0 @@
-{
-  "name": "My Health Tracker",
-  "short_name": "Health",
-  "start_url": "index.html",
-  "display": "standalone",
-  "theme_color": "#007aff",
-  "background_color": "#ffffff"
-}
