@@ -38,7 +38,7 @@ section {
    =============================== */
 
 input {
-  width: 100%;
+  width: 80%;
   padding: 8px 10px;        /* reduced vertical padding */
   margin-top: 6px;         /* tighter spacing */
   font-size: 15px;         /* slightly smaller text */
@@ -103,6 +103,7 @@ canvas {
   height: 34px;
   font-size: 14px;
 }
+
 
 
 
