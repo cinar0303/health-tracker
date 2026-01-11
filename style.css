@@ -26,12 +26,15 @@ h2 {
    =============================== */
 
 section {
-  background-color: #1e1e1e; /* dark gray cards */
+  position: relative;              /* 👈 required */
+  background-color: #1e1e1e;
   padding: 16px;
+  padding-bottom: 64px;            /* 👈 space for button */
   border-radius: 14px;
   margin-bottom: 18px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
 }
+
 
 /* ===============================
    INPUTS & BUTTONS
@@ -143,23 +146,24 @@ canvas {
 }
 
 
-/* Bottom-right action button container */
+/* Bottom-right anchored action button */
 .action-row {
-  display: flex;
-  justify-content: flex-end; /* push button to the right */
-  margin-top: 16px;
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
 }
 
-/* Narrow action buttons */
+
 .action-btn {
-  padding: 8px 18px;
+  padding: 8px 16px;
   font-size: 14px;
   border-radius: 12px;
-  background-color: #0a84ff; /* iOS blue */
+  background-color: #0a84ff;
   color: white;
   border: none;
-  min-width: 90px;           /* narrower than full-width */
+  min-width: 80px;
 }
+
 
 /* Touch feedback */
 .action-btn:active {
