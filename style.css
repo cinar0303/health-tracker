@@ -99,11 +99,16 @@ canvas {
   padding: 8px;
 }
 
+/* Smaller, centered input (for water) */
 .small-input {
   height: 34px;
   font-size: 14px;
+  padding: 6px 10px;
+
+  width: 60%;          /* 👈 THIS is the key */
+  max-width: 220px;    /* prevents it from being huge */
+  margin: 0 auto;      /* centers horizontally */
+  display: block;      /* required for centering */
 }
-
-
 
 
