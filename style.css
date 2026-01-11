@@ -38,7 +38,7 @@ section {
    =============================== */
 
 input {
-  width: 80%;
+  width: 60%;
   padding: 8px 10px;        /* reduced vertical padding */
   margin-top: 6px;         /* tighter spacing */
   font-size: 15px;         /* slightly smaller text */
@@ -141,6 +141,7 @@ canvas {
 .quick-btn:active {
   opacity: 0.85;
 }
+
 
 
 
