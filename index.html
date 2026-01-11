@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Health Tracker</title>
+
+  <!-- Connect manifest (important later) -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Connect CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <h1>My Health Tracker</h1>
+
+  <section>
+    <h2>💧 Water</h2>
+    <input id="waterInput" type="number" placeholder="ml">
+    <button onclick="addWater()">Add</button>
+    <p id="waterTotal">Today: 0 ml</p>
+  </section>
+
+  <section>
+    <h2>🏋️ Exercise</h2>
+    <input id="exerciseName" type="text" placeholder="Exercise name">
+    <input id="exerciseDuration" type="number" placeholder="Minutes">
+    <button onclick="addExercise()">Log</button>
+    <ul id="exerciseList"></ul>
+  </section>
+
+  <!-- Connect JS (logic) -->
+  <script src="app.js"></script>
+
+</body>
+</html>
