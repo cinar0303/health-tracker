@@ -39,14 +39,16 @@ section {
 
 input {
   width: 100%;
-  padding: 12px;
-  margin-top: 8px;
-  font-size: 16px;
-  border-radius: 10px;
+  padding: 8px 10px;        /* reduced vertical padding */
+  margin-top: 6px;         /* tighter spacing */
+  font-size: 15px;         /* slightly smaller text */
+  border-radius: 8px;      /* slightly tighter corners */
   border: none;
   background-color: #2a2a2a;
   color: #f0f0f0;
+  height: 38px;            /* explicit compact height */
 }
+
 
 input::placeholder {
   color: #9a9a9a;
@@ -96,4 +98,5 @@ canvas {
   border-radius: 12px;
   padding: 8px;
 }
+
 
