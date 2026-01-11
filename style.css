@@ -143,7 +143,28 @@ canvas {
 }
 
 
+/* Bottom-right action button container */
+.action-row {
+  display: flex;
+  justify-content: flex-end; /* push button to the right */
+  margin-top: 16px;
+}
 
+/* Narrow action buttons */
+.action-btn {
+  padding: 8px 18px;
+  font-size: 14px;
+  border-radius: 12px;
+  background-color: #0a84ff; /* iOS blue */
+  color: white;
+  border: none;
+  min-width: 90px;           /* narrower than full-width */
+}
+
+/* Touch feedback */
+.action-btn:active {
+  opacity: 0.85;
+}
 
 
 
