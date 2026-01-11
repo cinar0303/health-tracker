@@ -71,6 +71,16 @@ function addWater() {
 
   input.value = "";
 }
+// ===============================
+// QUICK WATER BUTTONS
+// ===============================
+function addQuickWater(amount) {
+  water += amount;
+  localStorage.setItem("water", water);
+
+  document.getElementById("waterTotal").innerText =
+    `Today: ${water} ml`;
+}
 
 // ===============================
 // ADD EXERCISE
@@ -156,4 +166,5 @@ function renderCharts() {
     }
   });
 }
+
 
