@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>My Health Tracker</title>
 
-  <!-- Connect manifest (important later) -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
 
-  <!-- Connect CSS -->
-  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -18,21 +18,30 @@
 
   <section>
     <h2>💧 Water</h2>
-    <input id="waterInput" type="number" placeholder="ml">
+    <input id="waterInput" type="number" placeholder="ml" />
     <button onclick="addWater()">Add</button>
     <p id="waterTotal">Today: 0 ml</p>
   </section>
 
   <section>
     <h2>🏋️ Exercise</h2>
-    <input id="exerciseName" type="text" placeholder="Exercise name">
-    <input id="exerciseDuration" type="number" placeholder="Minutes">
+    <input id="exerciseName" type="text" placeholder="Exercise name" />
+    <input id="exerciseDuration" type="number" placeholder="Minutes" />
     <button onclick="addExercise()">Log</button>
     <ul id="exerciseList"></ul>
   </section>
 
-  <!-- Connect JS (logic) -->
-  <script src="app.js"></script>
+  <section>
+    <h2>📅 History</h2>
+    <ul id="historyList"></ul>
+  </section>
 
+  <section>
+    <h2>📈 Trends</h2>
+    <canvas id="waterChart"></canvas>
+    <canvas id="exerciseChart" style="margin-top:20px;"></canvas>
+  </section>
+
+  <script src="app.js"></script>
 </body>
 </html>
