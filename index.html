@@ -31,7 +31,10 @@
     <button class="quick-btn" onclick="addQuickWater(500)">+500</button>
   </div>
 
-  <button onclick="addWater()">Add</button>
+  <div class="action-row">
+    <button class="action-btn" onclick="addWater()">Add</button>
+  </div>
+
 
   <p id="waterTotal">Today: 0 ml</p>
   </section>
@@ -41,7 +44,13 @@
     <h2>🏋️ Exercise</h2>
     <input id="exerciseName" type="text" placeholder="Exercise name" />
     <input id="exerciseDuration" type="number" placeholder="Minutes" />
-    <button onclick="addExercise()">Log</button>
+
+
+    <div class="action-row">
+      <button class="action-btn" onclick="addExercise()">Log</button>
+    </div>
+
+
     <ul id="exerciseList"></ul>
   </section>
 
@@ -59,5 +68,4 @@
   <script src="app.js"></script>
 </body>
 </html>
-
 
