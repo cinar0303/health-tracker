@@ -151,7 +151,7 @@ canvas {
   position: absolute;
   bottom: 16px;
   right: 16px;
-}
+}sss
 
 
 .action-btn {
@@ -168,5 +168,38 @@ canvas {
 /* Touch feedback */
 .action-btn:active {
   opacity: 0.85;
+}
+
+/* ===============================
+   EXERCISE HISTORY ANIMATION
+   =============================== */
+
+.exercise-details {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 0.35s ease,
+    opacity 0.25s ease;
+}
+
+.exercise-details.open {
+  max-height: 500px; /* large enough for many sets */
+  opacity: 1;
+}
+
+.exercise-history-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.exercise-history-header::after {
+  content: " ▼";
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.exercise-history-header.open::after {
+  content: " ▲";
 }
 
