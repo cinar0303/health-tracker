@@ -10,8 +10,11 @@ function getToday() {
 // ===============================
 let water = Number(localStorage.getItem("water")) || 0;
 let exercises = JSON.parse(localStorage.getItem("exercises")) || [];
-let history = JSON.parse(localStorage.getItem("history")) || [];
+let exerciseHistory = JSON.parse(localStorage.getItem("exerciseHistory")) || [];
+let editingIndex = null;
+let waterHistory = JSON.parse(localStorage.getItem("waterHistory")) || [];
 let lastDate = localStorage.getItem("lastDate");
+let exerciseChart = null;
 
 // ===============================
 // DAILY RESET LOGIC
@@ -19,31 +22,40 @@ let lastDate = localStorage.getItem("lastDate");
 const today = getToday();
 
 if (lastDate && lastDate !== today) {
-  saveDayToHistory();
+  saveWaterToHistory();
+  if (exercises.length > 0) {
+    exerciseHistory.push({
+      date: lastDate,
+      exercises: [...exercises]
+    });
+
+    localStorage.setItem(
+      "exerciseHistory",
+      JSON.stringify(exerciseHistory)
+    );
+  }
+			
   water = 0;
   exercises = [];
+
+
   localStorage.setItem("water", water);
   localStorage.setItem("exercises", JSON.stringify(exercises));
-  localStorage.setItem("lastDate", today);
-}
-
-if (!lastDate) {
   localStorage.setItem("lastDate", today);
 }
 
 // ===============================
 // SAVE HISTORY
 // ===============================
-function saveDayToHistory() {
-  if (water === 0 && exercises.length === 0) return;
+function saveWaterToHistory() {
+  if (water === 0) return;
 
-  history.push({
+  waterHistory.push({
     date: lastDate,
-    water: water,
-    exerciseCount: exercises.length
+    water
   });
 
-  localStorage.setItem("history", JSON.stringify(history));
+  localStorage.setItem("waterHistory", JSON.stringify(waterHistory));
 }
 
 // ===============================
@@ -53,8 +65,10 @@ document.getElementById("waterTotal").innerText =
   `Today: ${water} ml`;
 
 renderExercises();
-renderHistory();
-renderCharts();
+renderWaterHistory();
+renderExerciseHistory();
+
+
 
 // ===============================
 // ADD WATER
@@ -86,16 +100,59 @@ function addQuickWater(amount) {
 // ADD EXERCISE
 // ===============================
 function addExercise() {
-  const name = document.getElementById("exerciseName").value;
-  const duration = document.getElementById("exerciseDuration").value;
-  if (!name || !duration) return;
+  const name = document.getElementById("exerciseName").value.trim();
+  const weight = Number(document.getElementById("exerciseWeight").value);
+  const reps = Number(document.getElementById("exerciseReps").value);
+  const time = Number(document.getElementById("exerciseTime").value);
 
-  exercises.push({ name, duration });
+  if (!name) return;
+
+  let exercise;
+
+  // Time-based
+  if (time && !weight && !reps) {
+    exercise = { name, time, type: "time" };
+  }
+
+  // Weighted strength
+  else if (weight && reps && !time) {
+    exercise = { name, weight, reps, type: "strength" };
+  }
+
+  // Reps-only (bodyweight)
+  else if (!weight && reps && !time) {
+    exercise = { name, reps, type: "reps" };
+  }
+
+  else {
+    return; // invalid combination
+  }
+
+  if (editingIndex !== null) {
+    exercises[editingIndex] = exercise;
+    editingIndex = null;
+    document.querySelector(".action-btn").textContent = "Log";
+  } else {
+    const existingIndex = exercises.findIndex(
+      e => e.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (existingIndex !== -1) {
+      exercises[existingIndex] = exercise; // overwrite
+    } else {
+      exercises.push(exercise);
+    }
+  }
+
+
   localStorage.setItem("exercises", JSON.stringify(exercises));
-
   renderExercises();
+
+
   document.getElementById("exerciseName").value = "";
-  document.getElementById("exerciseDuration").value = "";
+  document.getElementById("exerciseWeight").value = "";
+  document.getElementById("exerciseReps").value = "";
+  document.getElementById("exerciseTime").value = "";
 }
 
 // ===============================
@@ -105,66 +162,217 @@ function renderExercises() {
   const list = document.getElementById("exerciseList");
   list.innerHTML = "";
 
-  exercises.forEach(e => {
+  exercises.forEach((e, index) => {
     const li = document.createElement("li");
-    li.textContent = `${e.name} — ${e.duration} min`;
+
+    const text = document.createElement("span");
+    text.style.cursor = "pointer";
+    text.onclick = () => showExerciseChart(e.name);
+
+    if (e.type === "time") {
+      text.textContent = `${e.name} — ⏱️ ${e.time} min`;
+    } 
+    else if (e.type === "strength") {
+      text.textContent = `${e.name} — 🏋️ ${e.weight} kg × ${e.reps}`;
+    }
+    else if (e.type === "reps") {
+      text.textContent = `${e.name} — 🔁 ${e.reps} reps`;
+    }
+
+
+    // Edit button
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "✏️";
+    editBtn.style.marginLeft = "10px";
+    editBtn.style.background = "none";
+    editBtn.style.border = "none";
+    editBtn.style.cursor = "pointer";
+
+    editBtn.onclick = () => startEditExercise(index);
+
+    // Delete button
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "❌";
+    delBtn.style.marginLeft = "6px";
+    delBtn.style.background = "none";
+    delBtn.style.border = "none";
+    delBtn.style.color = "#ff5c5c";
+    delBtn.style.cursor = "pointer";
+
+    delBtn.onclick = () => deleteExercise(index);
+
+    li.appendChild(text);
+    li.appendChild(editBtn);
+    li.appendChild(delBtn);
     list.appendChild(li);
   });
 }
 
 // ===============================
-// RENDER HISTORY
+// EDIT EXERCISES
 // ===============================
-function renderHistory() {
-  const list = document.getElementById("historyList");
-  list.innerHTML = "";
+function startEditExercise(index) {
+  const e = exercises[index];
+  editingIndex = index;
 
-  if (history.length === 0) {
-    list.innerHTML = "<li>No history yet.</li>";
-    return;
+  document.getElementById("exerciseName").value = e.name;
+  document.getElementById("exerciseWeight").value = e.weight || "";
+  document.getElementById("exerciseReps").value = e.reps || "";
+  document.getElementById("exerciseTime").value = e.time || "";
+
+  document.querySelector(".action-btn").textContent = "Save";
+}
+
+
+
+
+// ===============================
+// DELETE EXERCISES
+// ===============================
+function deleteExercise(index) {
+  exercises.splice(index, 1);
+  localStorage.setItem("exercises", JSON.stringify(exercises));
+  renderExercises();
+}
+
+
+// ===============================
+// EXERCISE CHART
+// ===============================
+
+function showExerciseChart(exerciseName) {
+  const labels = [];
+  const data = [];
+  let chartLabel = "";
+  let chartType = "line";
+
+  exerciseHistory.forEach(day => {
+    const found = day.exercises.find(e => e.name === exerciseName);
+    if (!found) return;
+
+    labels.push(day.date);
+
+    if (found.type === "time") {
+      data.push(found.time);
+      chartLabel = "Time (min)";
+    }
+    else if (found.type === "reps") {
+      data.push(found.reps);
+      chartLabel = "Reps";
+    }
+    else if (found.type === "strength") {
+      data.push(found.weight);
+      chartLabel = "Weight (kg)";
+    }
+  });
+
+  if (data.length === 0) return;
+
+  const ctx = document.getElementById("exerciseProgressChart");
+
+  if (exerciseChart) {
+    exerciseChart.destroy();
   }
 
-  history.slice().reverse().forEach(day => {
-    const li = document.createElement("li");
-    li.textContent =
-      `${day.date} — 💧 ${day.water} ml — 🏋️ ${day.exerciseCount} exercises`;
-    list.appendChild(li);
-  });
-}
-
-// ===============================
-// CHARTS (FEATURE 3)
-// ===============================
-function renderCharts() {
-  if (history.length === 0) return;
-
-  const labels = history.map(d => d.date);
-  const waterData = history.map(d => d.water);
-  const exerciseData = history.map(d => d.exerciseCount);
-
-  new Chart(document.getElementById("waterChart"), {
-    type: "line",
+  exerciseChart = new Chart(ctx, {
+    type: chartType,
     data: {
-      labels: labels,
+      labels,
       datasets: [{
-        label: "Water Intake (ml)",
-        data: waterData,
+        label: chartLabel,
+        data,
         borderWidth: 2,
         tension: 0.3
       }]
     }
   });
 
-  new Chart(document.getElementById("exerciseChart"), {
-    type: "bar",
-    data: {
-      labels: labels,
-      datasets: [{
-        label: "Exercises per Day",
-        data: exerciseData
-      }]
-    }
-  });
+  document.getElementById("exerciseChartTitle").textContent =
+    `📈 ${exerciseName} Progress`;
 }
 
 
+// ===============================
+// SUGGESTIONS
+// ===============================
+function updateExerciseSuggestions(filter = "") {
+  const datalist = document.getElementById("exerciseSuggestions");
+  datalist.innerHTML = "";
+
+  if (!filter) return;
+
+  const names = new Set();
+
+  // today's exercises
+  exercises.forEach(e => names.add(e.name));
+
+  // past exercises
+  exerciseHistory.forEach(day => {
+    day.exercises.forEach(e => names.add(e.name));
+  });
+
+  [...names]
+    .filter(name =>
+      name.toLowerCase().startsWith(filter.toLowerCase())
+    )
+    .forEach(name => {
+      const option = document.createElement("option");
+      option.value = name;
+      datalist.appendChild(option);
+    });
+}
+
+// ===============================
+// EXERCISE NAME SUGGESTION LISTENER
+// ===============================
+document
+  .getElementById("exerciseName")
+  .addEventListener("input", (e) => {
+    updateExerciseSuggestions(e.target.value);
+  });
+
+
+
+
+
+// ===============================
+// RENDER HISTORY
+// ===============================
+function renderWaterHistory() {
+  const list = document.getElementById("waterHistoryList");
+  list.innerHTML = "";
+
+  if (waterHistory.length === 0) {
+    list.innerHTML = "<li>No water history.</li>";
+    return;
+  }
+
+  waterHistory.slice().reverse().forEach(day => {
+    const li = document.createElement("li");
+    li.textContent = `${day.date} — 💧 ${day.water} ml`;
+    list.appendChild(li);
+  });
+}
+
+function renderExerciseHistory() {
+  const list = document.getElementById("exerciseHistoryList");
+  list.innerHTML = "";
+
+  if (exerciseHistory.length === 0) {
+    list.innerHTML = "<li>No exercise history.</li>";
+    return;
+  }
+
+  exerciseHistory.slice().reverse().forEach(day => {
+    const li = document.createElement("li");
+
+    const summary = day.exercises.map(e =>
+      e.type === "time"
+        ? `${e.name} (${e.time} min)`
+        : `${e.name} (${e.weight}kg × ${e.reps})`
+    ).join(", ");
+
+    li.textContent = `${day.date} — ${summary}`;
+    list.appendChild(li);
+  });
+}
