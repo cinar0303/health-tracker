@@ -133,15 +133,7 @@ function addExercise() {
     editingIndex = null;
     document.querySelector(".action-btn").textContent = "Log";
   } else {
-    const existingIndex = exercises.findIndex(
-      e => e.name.toLowerCase() === name.toLowerCase()
-    );
-
-    if (existingIndex !== -1) {
-      exercises[existingIndex] = exercise; // overwrite
-    } else {
-      exercises.push(exercise);
-    }
+    exercises.push(exercise);
   }
 
 
@@ -366,11 +358,18 @@ function renderExerciseHistory() {
   exerciseHistory.slice().reverse().forEach(day => {
     const li = document.createElement("li");
 
-    const summary = day.exercises.map(e =>
-      e.type === "time"
-        ? `${e.name} (${e.time} min)`
-        : `${e.name} (${e.weight}kg × ${e.reps})`
-    ).join(", ");
+    const grouped = {};
+
+    day.exercises.forEach(e => {
+      if (!grouped[e.name]) {
+        grouped[e.name] = 0;
+      }
+      grouped[e.name]++;
+    });
+
+    const summary = Object.entries(grouped)
+      .map(([name, count]) => `${name} — ${count} set${count > 1 ? "s" : ""}`)
+      .join(", ");
 
     li.textContent = `${day.date} — ${summary}`;
     list.appendChild(li);
