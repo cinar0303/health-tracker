@@ -15,6 +15,9 @@ let editingIndex = null;
 let waterHistory = JSON.parse(localStorage.getItem("waterHistory")) || [];
 let lastDate = localStorage.getItem("lastDate");
 let exerciseChart = null;
+let waterGoal = Number(localStorage.getItem("waterGoal")) || 2500;
+
+
 
 // ===============================
 // DAILY RESET LOGIC
@@ -63,6 +66,9 @@ function saveWaterToHistory() {
 // ===============================
 document.getElementById("waterTotal").innerText =
   `Today: ${water} ml`;
+document.getElementById("waterGoalInput").value = waterGoal;
+updateWaterProgress();
+
 
 renderExercises();
 renderWaterHistory();
@@ -84,6 +90,8 @@ function addWater() {
     `Today: ${water} ml`;
 
   input.value = "";
+  updateWaterProgress();
+
 }
 // ===============================
 // QUICK WATER BUTTONS
@@ -94,7 +102,24 @@ function addQuickWater(amount) {
 
   document.getElementById("waterTotal").innerText =
     `Today: ${water} ml`;
+  updateWaterProgress();
 }
+
+
+
+// ===============================
+// WATER PROGRESS
+// ===============================
+function updateWaterProgress() {
+  const percent = Math.min((water / waterGoal) * 100, 100);
+
+  document.getElementById("waterProgressFill").style.width =
+    `${percent}%`;
+
+  document.getElementById("waterProgressText").innerText =
+    `${water} / ${waterGoal} ml`;
+}
+
 
 // ===============================
 // ADD EXERCISE
@@ -437,3 +462,15 @@ function renderExerciseHistory() {
     list.appendChild(wrapper);
   });
 }
+
+document
+  .getElementById("waterGoalInput")
+  .addEventListener("change", (e) => {
+    const value = Number(e.target.value);
+    if (value > 0) {
+      waterGoal = value;
+      localStorage.setItem("waterGoal", waterGoal);
+      updateWaterProgress();
+    }
+  });
+
