@@ -356,22 +356,84 @@ function renderExerciseHistory() {
   }
 
   exerciseHistory.slice().reverse().forEach(day => {
-    const li = document.createElement("li");
+    const wrapper = document.createElement("li");
+
+    const header = document.createElement("div");
+    header.className = "exercise-history-header";
+    header.style.fontWeight = "600";
+
+    const details = document.createElement("ul");
+    details.className = "exercise-details";
+    details.style.marginTop = "8px";
+    details.style.paddingLeft = "14px";
+    details.style.fontSize = "14px";
 
     const grouped = {};
 
     day.exercises.forEach(e => {
-      if (!grouped[e.name]) {
-        grouped[e.name] = 0;
-      }
-      grouped[e.name]++;
+      if (!grouped[e.name]) grouped[e.name] = [];
+      grouped[e.name].push(e);
     });
 
-    const summary = Object.entries(grouped)
-      .map(([name, count]) => `${name} — ${count} set${count > 1 ? "s" : ""}`)
-      .join(", ");
+    // summary line
+    header.textContent =
+      `${day.date} — ` +
+      Object.entries(grouped)
+        .map(([name, sets]) =>
+          `${name} — ${sets.length} set${sets.length > 1 ? "s" : ""}`
+        )
+        .join(", ");
 
-    li.textContent = `${day.date} — ${summary}`;
-    list.appendChild(li);
+    // detailed sets
+    Object.entries(grouped).forEach(([name, sets]) => {
+      sets.forEach((e, i) => {
+        const li = document.createElement("li");
+
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = name;
+        nameSpan.style.fontWeight = "500";
+        nameSpan.style.cursor = "pointer";
+        nameSpan.style.textDecoration = "underline";
+        nameSpan.onclick = () => showExerciseChart(name);
+
+        const restSpan = document.createElement("span");
+
+        if (e.type === "strength") {
+          restSpan.textContent = ` • Set ${i + 1}: ${e.weight} kg × ${e.reps}`;
+        } else if (e.type === "reps") {
+          restSpan.textContent = ` • Set ${i + 1}: ${e.reps} reps`;
+        } else if (e.type === "time") {
+          restSpan.textContent = ` • Set ${i + 1}: ${e.time} min`;
+        }
+
+        li.appendChild(nameSpan);
+        li.appendChild(restSpan);
+        details.appendChild(li);
+      });
+
+    });
+
+    // toggle animation
+    header.onclick = () => {
+      const allDetails = document.querySelectorAll(".exercise-details");
+      const allHeaders = document.querySelectorAll(".exercise-history-header");
+
+      const isOpen = details.classList.contains("open");
+
+      // close all days
+      allDetails.forEach(d => d.classList.remove("open"));
+      allHeaders.forEach(h => h.classList.remove("open"));
+
+      // reopen clicked one if it was closed
+      if (!isOpen) {
+        details.classList.add("open");
+        header.classList.add("open");
+      }
+    };
+
+
+    wrapper.appendChild(header);
+    wrapper.appendChild(details);
+    list.appendChild(wrapper);
   });
 }
