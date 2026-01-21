@@ -14,91 +14,86 @@
 
 <body>
 
-  <h1>My Health Tracker</h1>
-
-  <section>
-  <h2>💧 Water</h2>
-
-  <div class="water-row">
-    <input
-      id="waterInput"
-      class="small-input"
-      type="number"
-      placeholder="ml"
-    />
-
-    <button class="quick-btn" onclick="addQuickWater(250)">+250</button>
-    <button class="quick-btn" onclick="addQuickWater(500)">+500</button>
+  <div class="nav-header">
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    <h1 id="pageTitle">Water Tracker</h1>
   </div>
 
-  <div class="action-row">
-    <button class="action-btn" onclick="addWater()">Add</button>
+  <div id="sideMenu" class="side-menu">
+    <button class="close-btn" onclick="toggleMenu()">×</button>
+    <nav>
+      <a href="#" onclick="showPage('home')">💧 Water Tracker</a>
+      <a href="#" onclick="showPage('exercises')">🏋️ Exercises</a>
+    </nav>
+  </div>
+  <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
+
+  <div id="page-home" class="page-section">
+    <section>
+      <h2>💧 Water</h2>
+
+      <div class="water-row">
+        <input id="waterInput" class="small-input" type="number" placeholder="ml" />
+        <button class="quick-btn" onclick="addQuickWater(250)">+250</button>
+        <button class="quick-btn" onclick="addQuickWater(500)">+500</button>
+      </div>
+
+      <div class="action-row">
+        <button class="action-btn" onclick="addWater()">Add</button>
+      </div>
+
+      <p id="waterTotal">Today: 0 ml</p>
+      <p id="waterProgressText">0 / 2500 ml</p>
+
+      <div class="water-progress-bar">
+        <div id="waterProgressFill"></div>
+      </div>
+
+      <input id="waterGoalInput" class="small-input" type="number" placeholder="Daily goal (ml)" />
+    </section>
+
+    <section>
+      <h2>📅 Water History</h2>
+      <ul id="waterHistoryList"></ul>
+    </section>
+
+    <section>
+      <h2>📈 Water Trends</h2>
+      <canvas id="waterTrendChart"></canvas>
+    </section>
   </div>
 
+  <div id="page-exercises" class="page-section" style="display: none;">
+    <section>
+      <h2>🏋️ Exercise Log</h2>
+      <input id="exerciseName" type="text" placeholder="Exercise name" list="exerciseSuggestions" />
+      <datalist id="exerciseSuggestions"></datalist>
+      <input id="exerciseWeight" type="number" placeholder="Weight (kg)" />
+      <input id="exerciseReps" type="number" placeholder="Reps" />
+      <input id="exerciseTime" type="number" placeholder="Time (min)" />
 
-  <p id="waterTotal">Today: 0 ml</p>
-  <p id="waterProgressText">0 / 2500 ml</p>
+      <div class="action-row">
+        <button class="action-btn" onclick="addExercise()">Log</button>
+      </div>
 
-  <div class="water-progress-bar">
-    <div id="waterProgressFill"></div>
+      <ul id="exerciseList"></ul>
+    </section>
+
+    <section>
+      <h2 id="exerciseChartTitle">📈 Exercise Progress</h2>
+      <canvas id="exerciseProgressChart"></canvas>
+    </section>
+
+    <section>
+      <h2>🏋️ History</h2>
+      <ul id="exerciseHistoryList"></ul>
+    </section>
+
+    <section>
+      <h2>📊 Activity Trends</h2>
+      <canvas id="activityTrendChart"></canvas>
+    </section>
   </div>
-
-  <input
-    id="waterGoalInput"
-    class="small-input"
-    type="number"
-    placeholder="Daily goal (ml)"
-  />
-
-  </section>
-
-
-  <section>
-    <h2>🏋️ Exercise</h2>
-    <input 
-      id="exerciseName" 
-      type="text" 
-      placeholder="Exercise name"
-      list="exerciseSuggestions"
-    />
-
-    <datalist id="exerciseSuggestions"></datalist>
-    <input id="exerciseWeight" type="number" placeholder="Weight (kg)" />
-    <input id="exerciseReps" type="number" placeholder="Reps" />
-    <input id="exerciseTime" type="number" placeholder="Time (min)" />
-
-
-    <div class="action-row">
-      <button class="action-btn" onclick="addExercise()">Log</button>
-    </div>
-
-
-    <ul id="exerciseList"></ul>
-  </section>
-
-  <section>
-    <h2 id="exerciseChartTitle">📈 Exercise Progress</h2>
-    <canvas id="exerciseProgressChart"></canvas>
-  </section>
-
-
-
-  <section>
-    <h2>📅 Water History</h2>
-    <ul id="waterHistoryList"></ul>
-  </section>
-
-  <section>
-    <h2>🏋️ Exercise History</h2>
-    <ul id="exerciseHistoryList"></ul>
-  </section>
-
-
-  <section>
-    <h2>📈 Trends</h2>
-    <canvas id="waterChart"></canvas>
-    <canvas id="exerciseChart" style="margin-top:20px;"></canvas>
-  </section>
 
   <script src="app.js"></script>
 </body>
