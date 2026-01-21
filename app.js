@@ -73,6 +73,7 @@ updateWaterProgress();
 renderExercises();
 renderWaterHistory();
 renderExerciseHistory();
+renderTrendCharts();
 
 
 
@@ -474,3 +475,83 @@ document
     }
   });
 
+// ===============================
+// RENDER TRENDS (BOTTOM CHARTS)
+// ===============================
+function renderTrendCharts() {
+  // 1. Water Trend
+  const waterCtx = document.getElementById("waterTrendChart");
+  if (waterCtx && waterHistory.length > 0) {
+    new Chart(waterCtx, {
+      type: "line",
+      data: {
+        labels: waterHistory.map(d => d.date),
+        datasets: [{
+          label: "Daily Water (ml)",
+          data: waterHistory.map(d => d.water),
+          borderColor: "#0a84ff",
+          backgroundColor: "rgba(10, 132, 255, 0.1)",
+          fill: true,
+          tension: 0.3
+        }]
+      }
+    });
+  }
+
+  // 2. Activity Trend (Total sets per day)
+  const activityCtx = document.getElementById("activityTrendChart");
+  if (activityCtx && exerciseHistory.length > 0) {
+    new Chart(activityCtx, {
+      type: "bar",
+      data: {
+        labels: exerciseHistory.map(d => d.date),
+        datasets: [{
+          label: "Sets Completed",
+          data: exerciseHistory.map(d => d.exercises.length),
+          backgroundColor: "#34c759", // iOS Green
+          borderRadius: 4
+        }]
+      }
+    });
+  }
+}
+
+// ===============================
+// NAVIGATION LOGIC
+// ===============================
+
+function toggleMenu() {
+  const menu = document.getElementById("sideMenu");
+  const overlay = document.getElementById("menuOverlay");
+  
+  menu.classList.toggle("open");
+  overlay.classList.toggle("open");
+}
+
+function showPage(pageId) {
+  // 1. Hide both pages
+  document.getElementById("page-home").style.display = "none";
+  document.getElementById("page-exercises").style.display = "none";
+
+  // 2. Show the selected page
+  document.getElementById(`page-${pageId}`).style.display = "block";
+
+  // 3. Update Title
+  const titles = {
+    home: "Water Tracker",
+    exercises: "Exercise Tracker"
+  };
+  document.getElementById("pageTitle").innerText = titles[pageId];
+
+  // 4. Force Charts to Resize (Fix for hidden tab issue)
+  if (pageId === 'home') {
+    const chart = Chart.getChart("waterTrendChart");
+    if (chart) chart.resize();
+  } else if (pageId === 'exercises') {
+    const chart = Chart.getChart("activityTrendChart");
+    if (chart) chart.resize();
+  }
+
+  // 5. Close menu
+  toggleMenu();
+}
