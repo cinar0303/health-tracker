@@ -24,6 +24,7 @@
     <nav>
       <a href="#" onclick="showPage('home')">💧 Water Tracker</a>
       <a href="#" onclick="showPage('exercises')">🏋️ Exercises</a>
+      <a href="#" onclick="showPage('planner')">📅 Planner</a>
     </nav>
   </div>
   <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
@@ -95,7 +96,85 @@
     </section>
   </div>
 
+  <div id="page-planner" class="page-section" style="display: none;">
+    <section>
+      <h2>📅 Workout Plans</h2>
+      
+      <div id="plansGrid" class="plans-grid">
+        <p class="empty-msg">No plans yet.<br>Tap + to create one.</p>
+      </div>
+    </section>
+
+    <button class="fab-btn" onclick="openPlanCreator()">+</button>
+  </div>
+
+  <div id="planCreatorModal" class="modal-overlay">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <div class="plan-tabs">
+          <button id="tabDaily" class="tab-btn active" onclick="switchPlanTab('daily')">Daily</button>
+          <button id="tabWeekly" class="tab-btn" onclick="switchPlanTab('weekly')">Weekly</button>
+        </div>
+        <button class="modal-close" onclick="closePlanCreator()">×</button>
+      </div>
+
+      <div id="creator-daily" class="creator-section">
+        <input id="planNameInput" type="text" placeholder="Plan Name (e.g. Push Day)" class="plan-name-input" />
+        
+        <div class="divider"></div>
+
+        <input id="planExName" type="text" placeholder="Exercise Name" list="exerciseSuggestions" />
+        <div class="plan-row">
+          <input id="planExSets" type="number" placeholder="Sets" class="small-input" />
+          <input id="planExTime" type="number" placeholder="Time (min)" class="small-input" />
+        </div>
+        
+        <button class="action-btn small-btn" onclick="addToPlanTemp()">+ Add Exercise</button>
+
+        <ul id="tempPlanList" class="preview-list"></ul>
+
+        <button class="action-btn save-btn" onclick="saveDailyPlan()">Save Daily Plan</button>
+      </div>
+
+      <div id="creator-weekly" class="creator-section" style="display: none;">
+        <input id="weeklyPlanName" type="text" placeholder="Weekly Schedule Name" class="plan-name-input" />
+        
+        <p class="instruction-text">Tap a day to select it:</p>
+        <div class="week-layout">
+          <div class="week-row" id="weekRow1"></div> <div class="week-row" id="weekRow2"></div> </div>
+
+        <div class="divider"></div>
+
+        <p class="instruction-text">Then pick a routine for that day:</p>
+        <div id="dailyPlanTray" class="plan-tray">
+          </div>
+
+        <button class="action-btn save-btn" onclick="saveWeeklyPlan()">Save Weekly Schedule</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="planViewerModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="viewPlanTitle" style="margin:0; font-size:20px;">Plan Name</h2>
+        <button class="modal-close" onclick="closePlanViewer()">×</button>
+      </div>
+
+      <ul id="viewPlanList" class="preview-list" style="margin-bottom:20px;">
+        </ul>
+
+      <div class="action-row" style="position:static; display:flex; gap:10px;">
+        <button class="action-btn" style="background-color:#ff5c5c; width:30%;" onclick="deletePlan()">Delete</button>
+        <button class="action-btn" style="background-color:#34c759; width:70%;" onclick="startWorkout()">Start Workout</button>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
+
 
