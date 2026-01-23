@@ -696,3 +696,99 @@ canvas {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
+/* ===============================
+   ACTIVE WORKOUT (GUIDED MODE)
+   =============================== */
+
+.aw-row {
+  margin-bottom: 25px;
+  transition: opacity 0.3s;
+}
+
+/* State: Completed */
+.aw-row.completed {
+  opacity: 0.4;
+}
+
+/* 1. Exercise Name: Big, Bold, Underline matches text length */
+.aw-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  display: inline-block;
+  border-bottom: 2px solid #0a84ff; /* Underline matches text */
+  margin-bottom: 4px;
+}
+
+/* 2. Set Label: Smaller, Full-width underline */
+.aw-set-label {
+  font-size: 14px;
+  color: #888;
+  border-bottom: 1px solid #333; /* Full width line */
+  width: 100%;
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+}
+
+/* 3. Inputs Row */
+.aw-inputs {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Done Button Styling */
+.aw-done-btn {
+  width: auto;
+  margin: 0;
+  background-color: #34c759;
+  padding: 0 20px;
+  height: 34px;
+}
+
+.aw-row.completed .aw-done-btn {
+  background-color: #555; /* Gray when undoing */
+}
+
+/* Disable pointer events on inputs when done */
+.aw-row.completed input {
+  pointer-events: none;
+}
+
+/* ===============================
+   SMART BANNERS
+   =============================== */
+.smart-banner {
+  background: linear-gradient(135deg, #1e1e1e 0%, #2a2a20 100%);
+  border: 1px solid #ffd700;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.banner-content { display: flex; flex-direction: column; }
+.banner-label { font-size: 10px; color: #ffd700; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.banner-title { font-size: 16px; font-weight: bold; color: #fff; margin-bottom: 2px; }
+.banner-daily { font-size: 14px; color: #ccc; }
+
+.banner-start-btn {
+  background-color: #34c759;
+  width: auto;
+  padding: 8px 20px;
+  margin: 0;
+  height: auto;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(52, 199, 89, 0.4);
+}
+
+.banner-start-btn:active { transform: scale(0.95); }
+
+/* Viewer Grid Adjustments */
+.day-box.readonly { cursor: default; }
+
+
