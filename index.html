@@ -97,13 +97,21 @@
   </div>
 
   <div id="page-planner" class="page-section" style="display: none;">
-    <section>
-      <h2>📅 Workout Plans</h2>
-      
-      <div id="plansGrid" class="plans-grid">
-        <p class="empty-msg">No plans yet.<br>Tap + to create one.</p>
-      </div>
-    </section>
+    <div class="planner-header-row">
+      <h2>📅 Weekly Schedules</h2>
+    </div>
+    <div id="weeklyPlansGrid" class="plans-grid">
+      <p class="empty-msg">No weekly schedules yet.</p>
+    </div>
+
+    <div class="divider" style="margin: 25px 0;"></div>
+
+    <div class="planner-header-row">
+      <h2>🏋️ Daily Routines</h2>
+    </div>
+    <div id="dailyPlansGrid" class="plans-grid">
+      <p class="empty-msg">No daily routines yet.</p>
+    </div>
 
     <button class="fab-btn" onclick="openPlanCreator()">+</button>
   </div>
@@ -176,5 +184,4 @@
   <script src="app.js"></script>
 </body>
 </html>
-
 
