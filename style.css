@@ -269,7 +269,11 @@ canvas {
   box-shadow: 2px 0 10px rgba(0,0,0,0.5);
   z-index: 1000;
   transition: left 0.3s ease;
+  
+  /* PUSH CONTENT BELOW THE NOTCH */
   padding: 20px;
+  padding-top: calc(20px + env(safe-area-inset-top)); 
+  
   display: flex;
   flex-direction: column;
 }
@@ -291,12 +295,16 @@ canvas {
   background: none;
   border: none;
   color: #888;
-  font-size: 30px;
+  font-size: 36px;  /* Bigger Icon */
   align-self: flex-end;
-  width: auto;
+  width: 50px;      /* Bigger Touch Target */
+  height: 50px;
   cursor: pointer;
   padding: 0;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .menu-overlay {
