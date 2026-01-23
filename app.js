@@ -318,7 +318,7 @@ function renderPlansGrid() {
       card.appendChild(countDiv);
 
       // 4. Click Action (Placeholder for Step 2)
-      card.onclick = () => alert("Smart Viewer coming in Step 2!");
+      card.onclick = () => openWeeklyViewer(plan.id);
       
       weeklyGrid.appendChild(card);
     } 
@@ -407,17 +407,10 @@ function deletePlan() {
 }
 
 function startWorkout() {
-  const plan = savedPlans.find(p => p.id === activePlanId);
-  if (!plan) return;
-
-  const newExercises = plan.exercises.map(e => ({...e}));
-  
-  exercises = [...exercises, ...newExercises];
-  localStorage.setItem("exercises", JSON.stringify(exercises));
-  
-  renderExercises();
-  closePlanViewer();
-  showPage('exercises');
+  if (activePlanId) {
+    closePlanViewer();
+    openActiveWorkout(activePlanId);
+  }
 }
 
 // ===============================
@@ -485,6 +478,7 @@ renderWaterHistory();
 renderExerciseHistory();
 renderTrendCharts();
 renderPlansGrid(); 
+updateAllBanners();
 
 // ===============================
 // 9. APP LOGIC (Water, Exercises, Charts)
@@ -819,3 +813,294 @@ function showPage(pageId) {
     toggleMenu();
   }
 }
+
+// ===============================
+// ACTIVE WORKOUT LOGIC (GUIDED)
+// ===============================
+let activeSessionData = []; // Stores the temporary state of every set
+
+function openActiveWorkout(planId) {
+  const plan = savedPlans.find(p => p.id === planId);
+  if (!plan) return;
+
+  activeSessionData = [];
+  const list = document.getElementById("activeWorkoutList");
+  list.innerHTML = "";
+
+  // 1. EXPLODE: Convert "3 Sets" into 3 separate Rows
+  plan.exercises.forEach(ex => {
+    // Determine how many sets to generate
+    let count = 1;
+    if (ex.type === 'sets' || ex.type === 'combined') {
+      count = parseInt(ex.sets) || 1;
+    } else if (ex.type === 'strength') {
+      // If it's a legacy strength item with reps but no set count, assume 1, 
+      // or if you want to support multiple sets for legacy, we default to 1 here.
+      count = 1; 
+    }
+
+    for (let i = 1; i <= count; i++) {
+      // Create a data object for this specific row
+      activeSessionData.push({
+        id: Date.now() + Math.random(), // Unique ID
+        name: ex.name,
+        setNum: i,
+        targetReps: ex.reps || "", 
+        targetTime: ex.time || "",
+        targetWeight: ex.weight || "",
+        isDone: false,
+        // Current Input Values
+        valWeight: "",
+        valReps: "",
+        valTime: ""
+      });
+    }
+  });
+
+  renderActiveWorkout();
+  document.getElementById("activeWorkoutModal").classList.add("open");
+}
+
+function renderActiveWorkout() {
+  const list = document.getElementById("activeWorkoutList");
+  list.innerHTML = "";
+
+  activeSessionData.forEach((row, index) => {
+    const div = document.createElement("div");
+    div.className = `aw-row ${row.isDone ? "completed" : ""}`;
+    
+    // HTML Structure based on your design
+    div.innerHTML = `
+      <div>
+        <span class="aw-name">${row.name}</span>
+      </div>
+
+      <div class="aw-set-label">Set ${row.setNum}</div>
+
+      <div class="aw-inputs">
+        ${getInputsHTML(row, index)}
+        <button class="aw-done-btn" onclick="toggleActiveSet(${index})">
+          ${row.isDone ? "Undo" : "Done"}
+        </button>
+      </div>
+    `;
+
+    list.appendChild(div);
+  });
+}
+
+// Helper to generate correct inputs based on available targets
+function getInputsHTML(row, index) {
+  let html = "";
+  
+  // Show Weight Input?
+  // We show it if it's not purely a Time or Reps exercise, or if it has a target weight
+  // Defaulting to always showing Weight/Reps unless it is strictly Cardio
+  
+  // Weight
+  html += `<input type="number" class="small-input" placeholder="kg" 
+            value="${row.valWeight}" 
+            onchange="updateActiveData(${index}, 'valWeight', this.value)" 
+            style="width:70px; margin:0;">`;
+
+  // Reps
+  html += `<input type="number" class="small-input" placeholder="Reps" 
+            value="${row.valReps}" 
+            onchange="updateActiveData(${index}, 'valReps', this.value)" 
+            style="width:60px; margin:0;">`;
+
+  // Time (Optional - add if needed, or replace reps if it's cardio)
+  if (row.targetTime) {
+     html += `<input type="number" class="small-input" placeholder="Min" 
+            value="${row.valTime}" 
+            onchange="updateActiveData(${index}, 'valTime', this.value)" 
+            style="width:60px; margin:0;">`;
+  }
+
+  return html;
+}
+
+function updateActiveData(index, field, value) {
+  activeSessionData[index][field] = value;
+}
+
+function toggleActiveSet(index) {
+  // Toggle State
+  activeSessionData[index].isDone = !activeSessionData[index].isDone;
+  // Re-render to update classes and button text
+  renderActiveWorkout();
+}
+
+function finishActiveSession() {
+  // Filter only COMPLETED sets
+  const completedSets = activeSessionData.filter(row => row.isDone);
+
+  if (completedSets.length === 0) {
+    if(!confirm("No sets marked as Done. Close without saving?")) return;
+    closeActiveWorkout();
+    return;
+  }
+
+  // Convert to Main App History Format
+  completedSets.forEach(row => {
+    let newLog = {
+      name: row.name,
+      // If user typed input, use it. Otherwise use target. Otherwise 0.
+      weight: Number(row.valWeight) || Number(row.targetWeight) || 0,
+      reps: Number(row.valReps) || Number(row.targetReps) || 0,
+      time: Number(row.valTime) || Number(row.targetTime) || 0,
+      type: 'strength' // Simplification: logging everything as strength/hybrid
+    };
+
+    // Refine Type
+    if (newLog.time > 0 && newLog.weight === 0) newLog.type = 'time';
+    else if (newLog.weight === 0 && newLog.reps > 0) newLog.type = 'reps';
+
+    exercises.push(newLog);
+  });
+
+  // Save Global State
+  localStorage.setItem("exercises", JSON.stringify(exercises));
+  
+  // Update UI
+  renderExercises();
+  closeActiveWorkout();
+  
+  // Jump to Exercises page to see results
+  showPage('exercises');
+}
+
+function closeActiveWorkout() {
+  document.getElementById("activeWorkoutModal").classList.remove("open");
+}
+
+// ===============================
+// WEEKLY PLAN VIEWER LOGIC
+// ===============================
+let activeWeeklyPlanId = null;
+
+function openWeeklyViewer(planId) {
+  const plan = savedPlans.find(p => p.id === planId);
+  if (!plan) return;
+  activeWeeklyPlanId = planId;
+
+  document.getElementById("weeklyViewTitle").textContent = plan.name;
+
+  // Render Read-Only Grid
+  const row1 = document.getElementById("viewWeekRow1");
+  const row2 = document.getElementById("viewWeekRow2");
+  row1.innerHTML = ""; 
+  row2.innerHTML = "";
+
+  dayNames.forEach((day, index) => {
+    const box = document.createElement("div");
+    const assignedId = plan.schedule[index];
+    let classes = "day-box readonly";
+    if (assignedId) classes += " filled";
+    
+    box.className = classes;
+
+    const label = document.createElement("div");
+    label.className = "day-label";
+    label.textContent = day;
+
+    const subText = document.createElement("div");
+    subText.className = "day-plan-name";
+    
+    if (assignedId) {
+      const p = savedPlans.find(pl => pl.id === assignedId);
+      subText.textContent = p ? p.name : "?";
+    } else {
+      subText.textContent = "-";
+    }
+
+    box.appendChild(label);
+    box.appendChild(subText);
+
+    if (index < 5) row1.appendChild(box);
+    else row2.appendChild(box);
+  });
+
+  document.getElementById("weeklyViewerModal").classList.add("open");
+}
+
+function closeWeeklyViewer() {
+  document.getElementById("weeklyViewerModal").classList.remove("open");
+  activeWeeklyPlanId = null;
+}
+
+function deleteWeeklyPlan() {
+  if (!confirm("Delete this weekly schedule?")) return;
+  savedPlans = savedPlans.filter(p => p.id !== activeWeeklyPlanId);
+  localStorage.setItem("savedPlans", JSON.stringify(savedPlans));
+  
+  renderPlansGrid();
+  updateAllBanners(); 
+  closeWeeklyViewer();
+}
+
+// ===============================
+// SMART BANNER LOGIC
+// ===============================
+let smartDailyId = null; 
+
+function updateAllBanners() {
+  const banners = [
+    document.getElementById("banner-home"),
+    document.getElementById("banner-exercises")
+  ];
+
+  // 1. Find Pinned Plan
+  const pinnedPlan = savedPlans.find(p => p.isPinned && p.type === 'weekly');
+  
+  if (!pinnedPlan) {
+    banners.forEach(b => { if(b) b.style.display = "none"; });
+    return;
+  }
+
+  // 2. Get Today's Schedule
+  const jsDay = new Date().getDay(); 
+  const todayIndex = (jsDay + 6) % 7; // Convert Sun(0) -> 6
+  const dailyPlanId = pinnedPlan.schedule[todayIndex];
+
+  // 3. Prepare Text
+  let dailyText = "Rest Day 💤";
+  let showButton = false;
+  smartDailyId = null;
+
+  if (dailyPlanId) {
+    const dailyPlan = savedPlans.find(p => p.id === dailyPlanId);
+    if (dailyPlan) {
+      dailyText = `Today: ${dailyPlan.name}`;
+      showButton = true;
+      smartDailyId = dailyPlanId;
+    } else {
+      dailyText = "Today: Unknown Plan";
+    }
+  }
+
+  // 4. Update BOTH banners
+  banners.forEach(b => {
+    if (!b) return;
+    b.style.display = "flex";
+    b.querySelector(".banner-title").textContent = pinnedPlan.name;
+    b.querySelector(".banner-daily").textContent = dailyText;
+    
+    const btn = b.querySelector(".banner-start-btn");
+    btn.style.display = showButton ? "block" : "none";
+  });
+}
+
+function startSmartWorkout() {
+  if (!smartDailyId) return;
+  openActiveWorkout(smartDailyId);
+}
+
+
+
+
+
+
+
+
+
