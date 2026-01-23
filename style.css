@@ -630,3 +630,69 @@ canvas {
   border-color: #ff5c5c;
   color: #ff5c5c;
 }
+
+/* ===============================
+   SPLIT PLANNER & PINNING
+   =============================== */
+
+/* Section Headers */
+.planner-header-row h2 {
+  font-size: 18px;
+  color: #fff;
+  margin-bottom: 10px;
+  border-left: 4px solid #0a84ff; /* Blue accent line */
+  padding-left: 10px;
+}
+
+/* Pinned Card Styling (The Gold Focus) */
+.plan-card {
+  position: relative; /* Essential for placing the pin button */
+}
+
+.plan-card.pinned {
+  border: 2px solid #ffd700; /* Gold Border */
+  background: #2a2a20;       /* Slight gold tint background */
+  order: -1;                 /* Flexbox trick: Forces it to position 0 (Top) */
+}
+
+/* The Pin Button (Icon) */
+.pin-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.3; /* Dim when not active */
+  z-index: 10;
+  color: #888;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plan-card:hover .pin-btn {
+  opacity: 1;
+}
+
+.plan-card.pinned .pin-btn {
+  opacity: 1;
+  color: #ffd700; /* Gold Icon */
+  font-size: 18px;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+/* "Current Focus" Badge text */
+.active-badge {
+  font-size: 10px;
+  color: #ffd700;
+  font-weight: bold;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
