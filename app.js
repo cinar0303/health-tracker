@@ -4,21 +4,27 @@
 let tempDailyPlan = []; 
 let savedPlans = JSON.parse(localStorage.getItem("savedPlans")) || [];
 
+// Weekly Planner Variables
+let tempWeeklySchedule = Array(7).fill(null); // Stores plan IDs for Mon-Sun
+let selectedDayIndex = null; // Which day box is currently highlighted
+const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
 // ===============================
-// 2. PLANNER LOGIC (Must be at the top)
+// 2. PLANNER LOGIC
 // ===============================
+
+// --- DAILY PLANNER FUNCTIONS ---
+
 function addToPlanTemp() {
   const name = document.getElementById("planExName").value.trim();
   const sets = document.getElementById("planExSets").value;
   const time = document.getElementById("planExTime").value;
 
-  // Silent Fail Check: If name is empty, focus the box and do nothing
   if (!name) {
      document.getElementById("planExName").focus();
      return; 
   }
 
-  // Create the object based on what was entered
   let item = { name };
 
   if (sets && time) {
@@ -35,7 +41,6 @@ function addToPlanTemp() {
     item.time = time;
     item.display = `${time} min`;
   } else {
-    // If neither sets nor time, just save the name
     item.type = "reps"; 
     item.display = "reps";
   }
@@ -43,7 +48,6 @@ function addToPlanTemp() {
   tempDailyPlan.push(item);
   renderTempPlan();
   
-  // Clear inputs
   document.getElementById("planExName").value = "";
   document.getElementById("planExSets").value = "";
   document.getElementById("planExTime").value = "";
@@ -58,11 +62,9 @@ function renderTempPlan() {
     const li = document.createElement("li");
     li.style.marginBottom = "8px";
     
-    // Text
     const span = document.createElement("span");
     span.textContent = `${item.name} — ${item.display}`;
     
-    // Delete Button (Small x)
     const delBtn = document.createElement("button");
     delBtn.textContent = "×";
     delBtn.style.background = "none";
@@ -93,7 +95,6 @@ function saveDailyPlan() {
     return;
   }
 
-  // Create the Plan Object
   const newPlan = {
     id: Date.now(),
     name: planName,
@@ -104,49 +105,267 @@ function saveDailyPlan() {
   savedPlans.push(newPlan);
   localStorage.setItem("savedPlans", JSON.stringify(savedPlans));
 
-  // Reset & Close
   tempDailyPlan = [];
   document.getElementById("planNameInput").value = "";
   renderTempPlan();
   closePlanCreator();
-  
-  // Refresh the Dashboard
   renderPlansGrid(); 
 }
 
-function renderPlansGrid() {
-  const grid = document.getElementById("plansGrid");
-  if (!grid) return;
+// --- WEEKLY PLANNER FUNCTIONS ---
+
+function renderWeekGrid() {
+  const row1 = document.getElementById("weekRow1");
+  const row2 = document.getElementById("weekRow2");
   
-  grid.innerHTML = "";
+  if (!row1 || !row2) return;
 
-  if (savedPlans.length === 0) {
-    grid.innerHTML = '<p class="empty-msg">No plans yet.<br>Tap + to create one.</p>';
-    return;
-  }
+  row1.innerHTML = "";
+  row2.innerHTML = "";
 
-  savedPlans.forEach(plan => {
-    const card = document.createElement("div");
-    card.className = "plan-card";
-    // We will make this open the plan later
-    card.onclick = () => openPlanViewer(plan.id);
+  dayNames.forEach((day, index) => {
+    const box = document.createElement("div");
     
-    const title = document.createElement("div");
-    title.className = "plan-title";
-    title.textContent = plan.name;
+    let classes = "day-box";
+    if (selectedDayIndex === index) classes += " selected";
+    if (tempWeeklySchedule[index]) classes += " filled";
+    
+    box.className = classes;
+    box.onclick = () => selectDay(index);
 
-    const count = document.createElement("div");
-    count.className = "plan-count";
-    count.textContent = `${plan.exercises.length} Exercises`;
+    const label = document.createElement("div");
+    label.className = "day-label";
+    label.textContent = day;
 
-    card.appendChild(title);
-    card.appendChild(count);
-    grid.appendChild(card);
+    const subText = document.createElement("div");
+    subText.className = "day-plan-name";
+    
+    if (tempWeeklySchedule[index]) {
+      const p = savedPlans.find(pl => pl.id === tempWeeklySchedule[index]);
+      subText.textContent = p ? p.name : "Unknown";
+    } else {
+      subText.textContent = "-";
+    }
+
+    box.appendChild(label);
+    box.appendChild(subText);
+
+    if (index < 5) row1.appendChild(box);
+    else row2.appendChild(box);
   });
 }
 
+function renderTray() {
+  const tray = document.getElementById("dailyPlanTray");
+  tray.innerHTML = "";
+
+  const restBtn = document.createElement("div");
+  restBtn.className = "tray-item rest-btn";
+  restBtn.textContent = "REST / CLEAR";
+  restBtn.onclick = () => assignPlanToDay(null);
+  tray.appendChild(restBtn);
+
+  const dailyPlans = savedPlans.filter(p => p.type === 'daily');
+
+  if (dailyPlans.length === 0) {
+    const msg = document.createElement("div");
+    msg.style.color = "#666";
+    msg.style.fontSize = "12px";
+    msg.style.padding = "20px";
+    msg.textContent = "Create Daily Plans first!";
+    tray.appendChild(msg);
+    return;
+  }
+
+  dailyPlans.forEach(plan => {
+    const item = document.createElement("div");
+    item.className = "tray-item";
+    item.textContent = plan.name;
+    item.onclick = () => assignPlanToDay(plan.id);
+    tray.appendChild(item);
+  });
+}
+
+function selectDay(index) {
+  selectedDayIndex = index;
+  renderWeekGrid(); 
+}
+
+function assignPlanToDay(planId) {
+  if (selectedDayIndex === null) {
+    alert("Please tap a day box (like Mon) first!");
+    return;
+  }
+  tempWeeklySchedule[selectedDayIndex] = planId;
+  renderWeekGrid();
+}
+
+function saveWeeklyPlan() {
+  const name = document.getElementById("weeklyPlanName").value.trim();
+  const hasContent = tempWeeklySchedule.some(id => id !== null);
+
+  if (!name) {
+    alert("Please name your weekly schedule.");
+    return;
+  }
+  if (!hasContent) {
+    alert("Please assign at least one workout to a day.");
+    return;
+  }
+
+  const newWeeklyPlan = {
+    id: Date.now(),
+    name: name,
+    type: "weekly",
+    schedule: [...tempWeeklySchedule]
+  };
+
+  savedPlans.push(newWeeklyPlan);
+  localStorage.setItem("savedPlans", JSON.stringify(savedPlans));
+
+  tempWeeklySchedule = Array(7).fill(null);
+  selectedDayIndex = null;
+  document.getElementById("weeklyPlanName").value = "";
+  
+  closePlanCreator();
+  renderPlansGrid();
+}
+
 // ===============================
-// PLAN VIEWER & START LOGIC
+// PINNING LOGIC
+// ===============================
+function togglePin(event, planId) {
+  event.stopPropagation(); // Stop the click from opening the plan viewer
+  
+  // 1. Find the plan
+  const planToPin = savedPlans.find(p => p.id === planId);
+  if (!planToPin) return;
+
+  // 2. Check current state
+  const isCurrentlyPinned = planToPin.isPinned || false;
+  
+  // 3. Unpin EVERYTHING first (Enforce "Only One" rule)
+  savedPlans.forEach(p => p.isPinned = false);
+
+  // 4. If it wasn't pinned before, pin it now
+  if (!isCurrentlyPinned) {
+    planToPin.isPinned = true;
+  }
+
+  // 5. Save & Refresh
+  localStorage.setItem("savedPlans", JSON.stringify(savedPlans));
+  renderPlansGrid();
+}
+
+// --- SHARED PLANNER UI ---
+
+function renderPlansGrid() {
+  const weeklyGrid = document.getElementById("weeklyPlansGrid");
+  const dailyGrid = document.getElementById("dailyPlansGrid");
+  
+  // Safety check: if elements don't exist yet, stop
+  if (!weeklyGrid || !dailyGrid) return;
+  
+  weeklyGrid.innerHTML = "";
+  dailyGrid.innerHTML = "";
+
+  if (savedPlans.length === 0) {
+    weeklyGrid.innerHTML = '<p class="empty-msg">No weekly schedules.</p>';
+    dailyGrid.innerHTML = '<p class="empty-msg">Tap + to create a plan.</p>';
+    return;
+  }
+
+  // SORT: Pinned plans always go to the top
+  const sortedPlans = [...savedPlans].sort((a, b) => {
+    return (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0);
+  });
+
+  sortedPlans.forEach(plan => {
+    const card = document.createElement("div");
+    card.className = "plan-card";
+    
+    // Add Pinned Class if active
+    if (plan.isPinned) card.classList.add("pinned");
+    
+    // --- WEEKLY PLANS ---
+    if (plan.type === 'weekly') {
+      // 1. Add Pin Button
+      const pinBtn = document.createElement("button");
+      pinBtn.className = "pin-btn";
+      pinBtn.innerHTML = "📌";
+      pinBtn.onclick = (e) => togglePin(e, plan.id);
+      card.appendChild(pinBtn);
+
+      // 2. Add Badge if Pinned
+      if (plan.isPinned) {
+        const badge = document.createElement("div");
+        badge.className = "active-badge";
+        badge.textContent = "★ Current Focus";
+        card.appendChild(badge);
+      }
+
+      // 3. Text Content
+      const daysCount = plan.schedule.filter(id => id !== null).length;
+      const countDiv = document.createElement("div");
+      countDiv.className = "plan-count";
+      countDiv.textContent = `📅 ${daysCount} Days Planned`;
+
+      const title = document.createElement("div");
+      title.className = "plan-title";
+      title.textContent = plan.name;
+
+      card.appendChild(title);
+      card.appendChild(countDiv);
+
+      // 4. Click Action (Placeholder for Step 2)
+      card.onclick = () => alert("Smart Viewer coming in Step 2!");
+      
+      weeklyGrid.appendChild(card);
+    } 
+    
+    // --- DAILY PLANS ---
+    else {
+      const title = document.createElement("div");
+      title.className = "plan-title";
+      title.textContent = plan.name;
+
+      const countDiv = document.createElement("div");
+      countDiv.className = "plan-count";
+      countDiv.textContent = `${plan.exercises.length} Exercises`;
+
+      card.appendChild(title);
+      card.appendChild(countDiv);
+
+      // Click Action (Open standard viewer)
+      card.onclick = () => openPlanViewer(plan.id);
+
+      dailyGrid.appendChild(card);
+    }
+  });
+}
+
+function openPlanCreator() {
+  document.getElementById("planCreatorModal").classList.add("open");
+}
+
+function closePlanCreator() {
+  document.getElementById("planCreatorModal").classList.remove("open");
+}
+
+function switchPlanTab(mode) {
+  document.getElementById("tabDaily").classList.toggle("active", mode === 'daily');
+  document.getElementById("tabWeekly").classList.toggle("active", mode === 'weekly');
+  document.getElementById("creator-daily").style.display = (mode === 'daily') ? "block" : "none";
+  document.getElementById("creator-weekly").style.display = (mode === 'weekly') ? "block" : "none";
+
+  if (mode === 'weekly') {
+    renderWeekGrid();
+    renderTray();
+  }
+}
+
+// ===============================
+// 3. PLAN VIEWER & START LOGIC
 // ===============================
 let activePlanId = null;
 
@@ -191,181 +410,18 @@ function startWorkout() {
   const plan = savedPlans.find(p => p.id === activePlanId);
   if (!plan) return;
 
-  // Copy plan exercises into today's log
-  // We clone them using {...e} so modifying today's log doesn't change the plan
   const newExercises = plan.exercises.map(e => ({...e}));
   
   exercises = [...exercises, ...newExercises];
   localStorage.setItem("exercises", JSON.stringify(exercises));
   
-  // Update UI and Switch Page
   renderExercises();
   closePlanViewer();
   showPage('exercises');
 }
 
-function openPlanCreator() {
-  document.getElementById("planCreatorModal").classList.add("open");
-}
-
-function closePlanCreator() {
-  document.getElementById("planCreatorModal").classList.remove("open");
-}
-
-function switchPlanTab(mode) {
-  document.getElementById("tabDaily").classList.toggle("active", mode === 'daily');
-  document.getElementById("tabWeekly").classList.toggle("active", mode === 'weekly');
-  document.getElementById("creator-daily").style.display = (mode === 'daily') ? "block" : "none";
-  document.getElementById("creator-weekly").style.display = (mode === 'weekly') ? "block" : "none";
-
-  // NEW: Initialize the Weekly View if selected
-  if (mode === 'weekly') {
-    renderWeekGrid();
-    renderTray();
-  }
-}
-
 // ===============================
-// WEEKLY PLANNER LOGIC
-// ===============================
-
-let tempWeeklySchedule = Array(7).fill(null); // Stores plan IDs for Mon-Sun
-let selectedDayIndex = null; // Which day box is currently highlighted (0-6)
-const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-// 1. Render the 7-Day Grid
-function renderWeekGrid() {
-  const row1 = document.getElementById("weekRow1");
-  const row2 = document.getElementById("weekRow2");
-  
-  if (!row1 || !row2) return;
-
-  row1.innerHTML = "";
-  row2.innerHTML = "";
-
-  dayNames.forEach((day, index) => {
-    const box = document.createElement("div");
-    
-    // Base Classes
-    let classes = "day-box";
-    if (selectedDayIndex === index) classes += " selected";
-    if (tempWeeklySchedule[index]) classes += " filled";
-    
-    box.className = classes;
-    box.onclick = () => selectDay(index);
-
-    // Content: Day Name + Assigned Plan Name
-    const label = document.createElement("div");
-    label.className = "day-label";
-    label.textContent = day;
-
-    const subText = document.createElement("div");
-    subText.className = "day-plan-name";
-    
-    if (tempWeeklySchedule[index]) {
-      // Find the plan name from ID
-      const p = savedPlans.find(pl => pl.id === tempWeeklySchedule[index]);
-      subText.textContent = p ? p.name : "Unknown";
-    } else {
-      subText.textContent = "-";
-    }
-
-    box.appendChild(label);
-    box.appendChild(subText);
-
-    // Add to Row 1 (first 5) or Row 2 (last 2)
-    if (index < 5) row1.appendChild(box);
-    else row2.appendChild(box);
-  });
-}
-
-// 2. Render the Sliding Tray
-function renderTray() {
-  const tray = document.getElementById("dailyPlanTray");
-  tray.innerHTML = "";
-
-  // A. Add "Rest / Clear" Option
-  const restBtn = document.createElement("div");
-  restBtn.className = "tray-item rest-btn";
-  restBtn.textContent = "REST / CLEAR";
-  restBtn.onclick = () => assignPlanToDay(null); // Assign null to clear
-  tray.appendChild(restBtn);
-
-  // B. Add Saved Daily Plans
-  const dailyPlans = savedPlans.filter(p => p.type === 'daily');
-
-  if (dailyPlans.length === 0) {
-    const msg = document.createElement("div");
-    msg.style.color = "#666";
-    msg.style.fontSize = "12px";
-    msg.style.padding = "20px";
-    msg.textContent = "Create Daily Plans first!";
-    tray.appendChild(msg);
-    return;
-  }
-
-  dailyPlans.forEach(plan => {
-    const item = document.createElement("div");
-    item.className = "tray-item";
-    item.textContent = plan.name;
-    item.onclick = () => assignPlanToDay(plan.id);
-    tray.appendChild(item);
-  });
-}
-
-// 3. User Interaction
-function selectDay(index) {
-  selectedDayIndex = index;
-  renderWeekGrid(); // Re-render to show selection border
-}
-
-function assignPlanToDay(planId) {
-  if (selectedDayIndex === null) {
-    alert("Please tap a day box (like Mon) first!");
-    return;
-  }
-  tempWeeklySchedule[selectedDayIndex] = planId;
-  renderWeekGrid(); // Re-render to show blue fill
-}
-
-// 4. Save the Weekly Schedule
-function saveWeeklyPlan() {
-  const name = document.getElementById("weeklyPlanName").value.trim();
-  
-  // Check if at least one day is assigned
-  const hasContent = tempWeeklySchedule.some(id => id !== null);
-
-  if (!name) {
-    alert("Please name your weekly schedule.");
-    return;
-  }
-  if (!hasContent) {
-    alert("Please assign at least one workout to a day.");
-    return;
-  }
-
-  const newWeeklyPlan = {
-    id: Date.now(),
-    name: name,
-    type: "weekly",
-    schedule: [...tempWeeklySchedule]
-  };
-
-  savedPlans.push(newWeeklyPlan);
-  localStorage.setItem("savedPlans", JSON.stringify(savedPlans));
-
-  // Reset
-  tempWeeklySchedule = Array(7).fill(null);
-  selectedDayIndex = null;
-  document.getElementById("weeklyPlanName").value = "";
-  
-  closePlanCreator();
-  renderPlansGrid();
-}
-
-
-// ===============================
-// 3. DATE HELPERS
+// 4. DATE HELPERS
 // ===============================
 function getToday() {
   const d = new Date();
@@ -376,7 +432,7 @@ function getToday() {
 }
 
 // ===============================
-// 4. LOAD SAVED DATA (Legacy)
+// 5. LOAD SAVED DATA (Legacy)
 // ===============================
 let water = Number(localStorage.getItem("water")) || 0;
 let exercises = JSON.parse(localStorage.getItem("exercises")) || [];
@@ -388,7 +444,7 @@ let exerciseChart = null;
 let waterGoal = Number(localStorage.getItem("waterGoal")) || 2500;
 
 // ===============================
-// 5. DAILY RESET LOGIC
+// 6. DAILY RESET LOGIC
 // ===============================
 const today = getToday();
 
@@ -409,7 +465,7 @@ if (lastDate && lastDate !== today) {
 }
 
 // ===============================
-// 6. SAVE HISTORY
+// 7. SAVE HISTORY
 // ===============================
 function saveWaterToHistory() {
   if (water === 0) return;
@@ -418,7 +474,7 @@ function saveWaterToHistory() {
 }
 
 // ===============================
-// 7. INITIAL UI
+// 8. INITIAL UI
 // ===============================
 document.getElementById("waterTotal").innerText = `Today: ${water} ml`;
 document.getElementById("waterGoalInput").value = waterGoal;
@@ -428,10 +484,10 @@ renderExercises();
 renderWaterHistory();
 renderExerciseHistory();
 renderTrendCharts();
-renderPlansGrid(); // <--- This will now work because savedPlans is defined above!
+renderPlansGrid(); 
 
 // ===============================
-// 8. APP LOGIC (Water, Exercises, Charts)
+// 9. APP LOGIC (Water, Exercises, Charts)
 // ===============================
 function addWater() {
   const input = document.getElementById("waterInput");
@@ -499,30 +555,17 @@ function renderExercises() {
 
   exercises.forEach((e, index) => {
     const li = document.createElement("li");
-
     const text = document.createElement("span");
     text.style.cursor = "pointer";
     text.onclick = () => showExerciseChart(e.name);
 
-    // LOGIC TO DISPLAY ALL TYPES (Including new Planner types)
-    if (e.type === "time") {
-      text.textContent = `${e.name} — ⏱️ ${e.time} min`;
-    } 
-    else if (e.type === "strength") {
-      text.textContent = `${e.name} — 🏋️ ${e.weight} kg × ${e.reps}`;
-    }
-    else if (e.type === "reps") {
-      text.textContent = `${e.name} — 🔁 ${e.reps} reps`;
-    }
-    // New types from Planner
-    else if (e.type === "sets") {
-      text.textContent = `${e.name} — 🔢 ${e.sets} sets`;
-    }
-    else if (e.type === "combined") {
-      text.textContent = `${e.name} — 🔢 ${e.sets} sets × ⏱️ ${e.time} min`;
-    }
+    if (e.type === "time") text.textContent = `${e.name} — ⏱️ ${e.time} min`;
+    else if (e.type === "strength") text.textContent = `${e.name} — 🏋️ ${e.weight} kg × ${e.reps}`;
+    else if (e.type === "reps") text.textContent = `${e.name} — 🔁 ${e.reps} reps`;
+    // New types
+    else if (e.type === "sets") text.textContent = `${e.name} — 🔢 ${e.sets} sets`;
+    else if (e.type === "combined") text.textContent = `${e.name} — 🔢 ${e.sets} sets × ⏱️ ${e.time} min`;
 
-    // Edit button
     const editBtn = document.createElement("button");
     editBtn.textContent = "✏️";
     editBtn.style.marginLeft = "10px";
@@ -531,7 +574,6 @@ function renderExercises() {
     editBtn.style.cursor = "pointer";
     editBtn.onclick = () => startEditExercise(index);
 
-    // Delete button
     const delBtn = document.createElement("button");
     delBtn.textContent = "❌";
     delBtn.style.marginLeft = "6px";
@@ -547,7 +589,6 @@ function renderExercises() {
     list.appendChild(li);
   });
 }
-
 
 function startEditExercise(index) {
   const e = exercises[index];
@@ -748,7 +789,7 @@ function renderTrendCharts() {
 }
 
 // ===============================
-// 9. NAVIGATION LOGIC
+// 10. NAVIGATION LOGIC
 // ===============================
 function toggleMenu() {
   const menu = document.getElementById("sideMenu");
@@ -771,7 +812,8 @@ function showPage(pageId) {
     const chart = Chart.getChart("activityTrendChart");
     if (chart) chart.resize();
   }
-  // Only close the menu if it is actually open
+  
+  // FIX: Only close if open
   const menu = document.getElementById("sideMenu");
   if (menu.classList.contains("open")) {
     toggleMenu();
