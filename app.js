@@ -9,6 +9,8 @@ let tempWeeklySchedule = Array(7).fill(null); // Stores plan IDs for Mon-Sun
 let selectedDayIndex = null; // Which day box is currently highlighted
 const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+let smartDailyId = null;
+
 // ===============================
 // 2. PLANNER LOGIC
 // ===============================
@@ -234,6 +236,7 @@ function saveWeeklyPlan() {
 // ===============================
 // PINNING LOGIC
 // ===============================
+
 function togglePin(event, planId) {
   event.stopPropagation(); // Stop the click from opening the plan viewer
   
@@ -252,9 +255,12 @@ function togglePin(event, planId) {
     planToPin.isPinned = true;
   }
 
-  // 5. Save & Refresh
+  // 5. Save & Refresh Grid
   localStorage.setItem("savedPlans", JSON.stringify(savedPlans));
   renderPlansGrid();
+  
+  // 6. TRIGGER THE BANNER UPDATE (This was missing in your file!)
+  updateAllBanners();
 }
 
 // --- SHARED PLANNER UI ---
@@ -1042,7 +1048,6 @@ function deleteWeeklyPlan() {
 // ===============================
 // SMART BANNER LOGIC
 // ===============================
-let smartDailyId = null; 
 
 function updateAllBanners() {
   const banners = [
