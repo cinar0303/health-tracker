@@ -270,7 +270,10 @@ canvas {
   z-index: 1000;
   transition: left 0.3s ease;
   
-  /* PUSH CONTENT BELOW THE NOTCH */
+  /* THIS IS THE FIX: */
+  box-sizing: border-box;
+  
+  /* Keep the safe area padding */
   padding: 20px;
   padding-top: calc(20px + env(safe-area-inset-top)); 
   
