@@ -11,6 +11,183 @@ const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 let smartDailyId = null;
 
+
+// ===============================
+// SAMPLE ROUTINES DATA
+// ===============================
+const sampleLibrary = [
+  // --- BODYWEIGHT (Beginner) ---
+  {
+    id: "bw-push-beg", name: "BW Push (Beginner)", type: "daily",
+    exercises: [
+      { name: "Pushups", sets: 3, reps: 8, type: "reps", display: "3 sets × 8 reps" },
+      { name: "Knee Pushups", sets: 3, reps: 10, type: "reps", display: "3 sets × 10 reps" },
+      { name: "Plank", sets: 3, time: 30, type: "time", display: "3 sets × 30 sec" }
+    ]
+  },
+  {
+    id: "bw-pull-beg", name: "BW Pull (Beginner)", type: "daily",
+    exercises: [
+      { name: "Doorframe Rows", sets: 3, reps: 10, type: "reps", display: "3 sets × 10 reps" },
+      { name: "Superman Holds", sets: 3, time: 20, type: "time", display: "3 sets × 20 sec" },
+      { name: "Glute Bridges", sets: 3, reps: 12, type: "reps", display: "3 sets × 12 reps" }
+    ]
+  },
+  {
+    id: "bw-legs-beg", name: "BW Legs (Beginner)", type: "daily",
+    exercises: [
+      { name: "Bodyweight Squats", sets: 3, reps: 12, type: "reps", display: "3 sets × 12 reps" },
+      { name: "Lunges", sets: 3, reps: 10, type: "reps", display: "3 sets × 10 reps (each leg)" },
+      { name: "Calf Raises", sets: 3, reps: 15, type: "reps", display: "3 sets × 15 reps" }
+    ]
+  },
+
+  // --- GYM (Intermediate) ---
+  {
+    id: "gym-push-int", name: "Gym Push (Interm.)", type: "daily",
+    exercises: [
+      { name: "Bench Press", sets: 4, reps: 8, weight: 60, type: "strength", display: "4 sets × 8 reps" },
+      { name: "Overhead Press", sets: 3, reps: 10, weight: 30, type: "strength", display: "3 sets × 10 reps" },
+      { name: "Incline Dumbbell Press", sets: 3, reps: 10, weight: 20, type: "strength", display: "3 sets × 10 reps" },
+      { name: "Tricep Dips", sets: 3, reps: 12, type: "reps", display: "3 sets × 12 reps" }
+    ]
+  },
+  {
+    id: "gym-pull-int", name: "Gym Pull (Interm.)", type: "daily",
+    exercises: [
+      { name: "Deadlift", sets: 3, reps: 5, weight: 100, type: "strength", display: "3 sets × 5 reps" },
+      { name: "Pullups", sets: 3, reps: 8, type: "reps", display: "3 sets × 8 reps" },
+      { name: "Barbell Rows", sets: 3, reps: 10, weight: 50, type: "strength", display: "3 sets × 10 reps" },
+      { name: "Face Pulls", sets: 3, reps: 15, weight: 15, type: "strength", display: "3 sets × 15 reps" }
+    ]
+  },
+  {
+    id: "gym-legs-int", name: "Gym Legs (Interm.)", type: "daily",
+    exercises: [
+      { name: "Squat", sets: 4, reps: 6, weight: 80, type: "strength", display: "4 sets × 6 reps" },
+      { name: "Romanian Deadlift", sets: 3, reps: 10, weight: 60, type: "strength", display: "3 sets × 10 reps" },
+      { name: "Leg Press", sets: 3, reps: 12, weight: 120, type: "strength", display: "3 sets × 12 reps" },
+      { name: "Leg Curls", sets: 3, reps: 15, weight: 40, type: "strength", display: "3 sets × 15 reps" }
+    ]
+  },
+  // --- BODYWEIGHT (Hard) ---
+  {
+    id: "bw-push-hard", name: "BW Push (Hard)", type: "daily",
+    exercises: [
+      { name: "Archer Pushups", sets: 3, reps: 10, type: "reps", display: "3 sets × 10 reps (each side)" },
+      { name: "Dips", sets: 4, reps: 12, type: "reps", display: "4 sets × 12 reps" },
+      { name: "Decline Pike Pushups", sets: 3, reps: 10, type: "reps", display: "3 sets × 10 reps" },
+      { name: "Diamond Pushups", sets: 3, reps: 15, type: "reps", display: "3 sets × 15 reps" }
+    ]
+  },
+  {
+    id: "bw-pull-hard", name: "BW Pull (Hard)", type: "daily",
+    exercises: [
+      { name: "Wide Grip Pullups", sets: 4, reps: 8, type: "reps", display: "4 sets × 8 reps" },
+      { name: "Chin-ups", sets: 3, reps: 10, type: "reps", display: "3 sets × 10 reps" },
+      { name: "BW Rows (Feet Elevated)", sets: 3, reps: 12, type: "reps", display: "3 sets × 12 reps" },
+      { name: "Hanging Leg Raises", sets: 3, reps: 12, type: "reps", display: "3 sets × 12 reps" }
+    ]
+  },
+  {
+    id: "bw-legs-hard", name: "BW Legs (Hard)", type: "daily",
+    exercises: [
+      { name: "Pistol Squats (Assisted)", sets: 3, reps: 6, type: "reps", display: "3 sets × 6 reps (each leg)" },
+      { name: "Bulgarian Split Squats", sets: 3, reps: 10, type: "reps", display: "3 sets × 10 reps" },
+      { name: "Jump Squats", sets: 4, reps: 15, type: "reps", display: "4 sets × 15 reps" },
+      { name: "Nordic Curl Negatives", sets: 3, reps: 8, type: "reps", display: "3 sets × 8 reps" }
+    ]
+  },
+
+  // --- GYM (Hard) ---
+  {
+    id: "gym-push-hard", name: "Gym Push (Hard)", type: "daily",
+    exercises: [
+      { name: "Bench Press", sets: 5, reps: 5, weight: 80, type: "strength", display: "5 sets × 5 reps" },
+      { name: "Seated Dumbbell Press", sets: 4, reps: 8, weight: 24, type: "strength", display: "4 sets × 8 reps" },
+      { name: "Weighted Dips", sets: 3, reps: 10, weight: 10, type: "strength", display: "3 sets × 10 reps" },
+      { name: "Cable Flys", sets: 3, reps: 15, weight: 15, type: "strength", display: "3 sets × 15 reps" }
+    ]
+  },
+  {
+    id: "gym-pull-hard", name: "Gym Pull (Hard)", type: "daily",
+    exercises: [
+      { name: "Weighted Pullups", sets: 4, reps: 6, weight: 10, type: "strength", display: "4 sets × 6 reps" },
+      { name: "T-Bar Row", sets: 3, reps: 10, weight: 60, type: "strength", display: "3 sets × 10 reps" },
+      { name: "Lat Pulldown", sets: 3, reps: 12, weight: 65, type: "strength", display: "3 sets × 12 reps" },
+      { name: "Preacher Curls", sets: 3, reps: 12, weight: 30, type: "strength", display: "3 sets × 12 reps" }
+    ]
+  },
+  {
+    id: "gym-legs-hard", name: "Gym Legs (Hard)", type: "daily",
+    exercises: [
+      { name: "Barbell Squat", sets: 5, reps: 5, weight: 100, type: "strength", display: "5 sets × 5 reps" },
+      { name: "Hack Squat", sets: 3, reps: 10, weight: 120, type: "strength", display: "3 sets × 10 reps" },
+      { name: "Romanian Deadlift", sets: 4, reps: 8, weight: 90, type: "strength", display: "4 sets × 8 reps" },
+      { name: "Seated Calf Raise", sets: 4, reps: 15, weight: 40, type: "strength", display: "4 sets × 15 reps" }
+    ]
+  },
+
+  // --- BODYWEIGHT (Expert) ---
+  {
+    id: "bw-push-exp", name: "BW Push (Expert)", type: "daily",
+    exercises: [
+      { name: "Handstand Pushups", sets: 3, reps: 6, type: "reps", display: "3 sets × 6 reps" },
+      { name: "Ring Dips", sets: 4, reps: 10, type: "reps", display: "4 sets × 10 reps" },
+      { name: "One Arm Pushups", sets: 3, reps: 5, type: "reps", display: "3 sets × 5 reps (each arm)" },
+      { name: "Planche Leans", sets: 3, time: 20, type: "time", display: "3 sets × 20 sec" }
+    ]
+  },
+  {
+    id: "bw-pull-exp", name: "BW Pull (Expert)", type: "daily",
+    exercises: [
+      { name: "Muscle-Ups", sets: 3, reps: 5, type: "reps", display: "3 sets × 5 reps" },
+      { name: "Explosive High Pullups", sets: 4, reps: 6, type: "reps", display: "4 sets × 6 reps" },
+      { name: "Front Lever Tucks", sets: 3, time: 15, type: "time", display: "3 sets × 15 sec" },
+      { name: "Commando Pullups", sets: 3, reps: 8, type: "reps", display: "3 sets × 8 reps" }
+    ]
+  },
+  {
+    id: "bw-legs-exp", name: "BW Legs (Expert)", type: "daily",
+    exercises: [
+      { name: "Full Pistol Squats", sets: 4, reps: 8, type: "reps", display: "4 sets × 8 reps" },
+      { name: "Box Jumps (Max Height)", sets: 5, reps: 3, type: "reps", display: "5 sets × 3 reps" },
+      { name: "Sprints", sets: 5, time: 0.3, type: "time", display: "5 sets × 20 sec sprint" },
+      { name: "Single Leg Glute Bridge", sets: 3, reps: 15, type: "reps", display: "3 sets × 15 reps" }
+    ]
+  },
+
+  // --- GYM (Expert) ---
+  {
+    id: "gym-push-exp", name: "Gym Push (Expert)", type: "daily",
+    exercises: [
+      { name: "Bench Press", sets: 5, reps: 3, weight: 100, type: "strength", display: "5 sets × 3 reps (Heavy)" },
+      { name: "Overhead Press", sets: 4, reps: 6, weight: 60, type: "strength", display: "4 sets × 6 reps" },
+      { name: "Incline DB Press", sets: 3, reps: 10, weight: 30, type: "strength", display: "3 sets × 10 reps" },
+      { name: "Weighted Ring Dips", sets: 3, reps: 8, weight: 20, type: "strength", display: "3 sets × 8 reps" }
+    ]
+  },
+  {
+    id: "gym-pull-exp", name: "Gym Pull (Expert)", type: "daily",
+    exercises: [
+      { name: "Deadlift", sets: 5, reps: 3, weight: 140, type: "strength", display: "5 sets × 3 reps (Heavy)" },
+      { name: "Weighted Pullups", sets: 5, reps: 5, weight: 20, type: "strength", display: "5 sets × 5 reps" },
+      { name: "Pendlay Rows", sets: 4, reps: 8, weight: 80, type: "strength", display: "4 sets × 8 reps" },
+      { name: "Rear Delt Flys", sets: 4, reps: 15, weight: 12, type: "strength", display: "4 sets × 15 reps" }
+    ]
+  },
+  {
+    id: "gym-legs-exp", name: "Gym Legs (Expert)", type: "daily",
+    exercises: [
+      { name: "Squat", sets: 5, reps: 3, weight: 140, type: "strength", display: "5 sets × 3 reps (Heavy)" },
+      { name: "Front Squat", sets: 3, reps: 8, weight: 90, type: "strength", display: "3 sets × 8 reps" },
+      { name: "Bulgarian Split Squats", sets: 3, reps: 10, weight: 40, type: "strength", display: "3 sets × 10 reps" },
+      { name: "Leg Extension Dropset", sets: 3, reps: 20, weight: 50, type: "strength", display: "3 sets × 20 reps (Burnout)" }
+    ]
+  }
+];
+
+
 // ===============================
 // 2. PLANNER LOGIC
 // ===============================
@@ -393,6 +570,13 @@ function openPlanViewer(planId) {
     li.textContent = `${item.name} — ${item.display}`;
     list.appendChild(li);
   });
+  
+  // RESTORE STANDARD BUTTONS
+  const actionRow = document.querySelector("#planViewerModal .action-row");
+  actionRow.innerHTML = `
+    <button class="action-btn" style="background-color:#ff5c5c; width:30%;" onclick="deletePlan()">Delete</button>
+    <button class="action-btn" style="background-color:#34c759; width:70%;" onclick="startWorkout()">Start Workout</button>
+  `;
 
   document.getElementById("planViewerModal").classList.add("open");
 }
@@ -485,6 +669,7 @@ renderExerciseHistory();
 renderTrendCharts();
 renderPlansGrid(); 
 updateAllBanners();
+renderSampleGrid();
 
 // ===============================
 // 9. APP LOGIC (Water, Exercises, Charts)
@@ -1103,9 +1288,87 @@ function startSmartWorkout() {
 
 
 
+// ===============================
+// SAMPLE ROUTINES LOGIC
+// ===============================
 
+function renderSampleGrid() {
+  const grid = document.getElementById("samplePlansGrid");
+  if (!grid) return;
+  grid.innerHTML = "";
 
+  sampleLibrary.forEach(plan => {
+    const card = document.createElement("div");
+    card.className = "plan-card sample-card"; // 'sample-card' for special styling
+    
+    // Title
+    const title = document.createElement("div");
+    title.className = "plan-title";
+    title.textContent = plan.name;
 
+    // Subtitle
+    const count = document.createElement("div");
+    count.className = "plan-count";
+    count.textContent = `${plan.exercises.length} Exercises`;
 
+    card.appendChild(title);
+    card.appendChild(count);
 
+    // Click to View
+    card.onclick = () => openSampleViewer(plan.id);
+
+    grid.appendChild(card);
+  });
+}
+
+// Reuse the existing Plan Viewer Modal, but modify buttons
+function openSampleViewer(sampleId) {
+  const plan = sampleLibrary.find(p => p.id === sampleId);
+  if (!plan) return;
+
+  // 1. Populate Text
+  document.getElementById("viewPlanTitle").textContent = "📚 " + plan.name;
+  
+  const list = document.getElementById("viewPlanList");
+  list.innerHTML = "";
+  plan.exercises.forEach(item => {
+    const li = document.createElement("li");
+    li.style.padding = "8px 0";
+    li.style.borderBottom = "1px solid #333";
+    li.style.color = "#ccc";
+    li.textContent = `${item.name} — ${item.display}`;
+    list.appendChild(li);
+  });
+
+  // 2. SWAP BUTTONS (Hide Delete/Start, Show Import)
+  const actionRow = document.querySelector("#planViewerModal .action-row");
+  // Save original buttons to restore later? simpler to just rewrite innerHTML
+  actionRow.innerHTML = `
+    <button class="action-btn" style="background-color:#8e44ad; width:100%;" onclick="importSample('${sampleId}')">
+      ➕ Add to My Routines
+    </button>
+  `;
+
+  document.getElementById("planViewerModal").classList.add("open");
+}
+
+function importSample(sampleId) {
+  const sample = sampleLibrary.find(p => p.id === sampleId);
+  if (!sample) return;
+
+  // Create a DEEP COPY so we don't edit the original sample later
+  const newPlan = {
+    id: Date.now(),
+    name: sample.name, // You can rename it here if you want
+    type: "daily",
+    exercises: JSON.parse(JSON.stringify(sample.exercises))
+  };
+
+  savedPlans.push(newPlan);
+  localStorage.setItem("savedPlans", JSON.stringify(savedPlans));
+
+  renderPlansGrid(); // Refresh the list
+  closePlanViewer();
+  alert(`"${sample.name}" added to your Daily Routines!`);
+}
 
