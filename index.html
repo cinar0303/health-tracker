@@ -30,6 +30,14 @@
   <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
 
   <div id="page-home" class="page-section">
+    <div id="banner-home" class="smart-banner" style="display: none;">
+      <div class="banner-content">
+        <div class="banner-label">📌 CURRENT FOCUS</div>
+        <div class="banner-title">Loading...</div>
+        <div class="banner-daily">Checking schedule...</div>
+      </div>
+      <button class="banner-start-btn" onclick="startSmartWorkout()">Start</button>
+    </div>
     <section>
       <h2>💧 Water</h2>
 
@@ -65,6 +73,14 @@
   </div>
 
   <div id="page-exercises" class="page-section" style="display: none;">
+    <div id="banner-exercises" class="smart-banner" style="display: none;">
+      <div class="banner-content">
+        <div class="banner-label">📌 CURRENT FOCUS</div>
+        <div class="banner-title">Loading...</div>
+        <div class="banner-daily">Checking schedule...</div>
+      </div>
+      <button class="banner-start-btn" onclick="startSmartWorkout()">Start</button>
+    </div>
     <section>
       <h2>🏋️ Exercise Log</h2>
       <input id="exerciseName" type="text" placeholder="Exercise name" list="exerciseSuggestions" />
@@ -180,6 +196,50 @@
       </div>
     </div>
   </div>
+
+
+  <div id="weeklyViewerModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="weeklyViewTitle" style="margin:0; font-size:20px;">Weekly Schedule</h2>
+        <button class="modal-close" onclick="closeWeeklyViewer()">×</button>
+      </div>
+
+      <div class="week-layout">
+        <div class="week-row" id="viewWeekRow1"></div>
+        <div class="week-row" id="viewWeekRow2"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="action-row" style="position:static; display:flex; justify-content:flex-end; gap:10px;">
+        <button class="action-btn" style="background-color:#ff5c5c; width:auto;" onclick="deleteWeeklyPlan()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div id="activeWorkoutModal" class="modal-overlay">
+    <div class="modal-content" style="height: 90vh; display:flex; flex-direction:column;">
+      
+      <div class="modal-header" style="flex-shrink:0;">
+        <h2 style="margin:0; font-size:22px; color:#34c759;">⚡ Active Workout</h2>
+        <button class="modal-close" onclick="closeActiveWorkout()">×</button>
+      </div>
+
+      <div id="activeWorkoutList" style="flex-grow:1; overflow-y:auto; padding-bottom:20px;">
+        </div>
+
+      <div style="flex-shrink:0; padding-top:15px; border-top:1px solid #333;">
+        <button class="action-btn" style="background-color:#34c759; width:100%; font-size:18px; padding:15px;" onclick="finishActiveSession()">
+          Finish Workout 🏁
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
 
   <script src="app.js"></script>
 </body>
