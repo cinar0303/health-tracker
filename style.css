@@ -114,20 +114,25 @@ canvas {
   display: block;      /* required for centering */
 }
 
-/* Water input + quick buttons in one row */
+/* Water Layout: Input on top, Buttons below */
 .water-row {
   display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 10px;
-  align-items: center;
+  grid-template-columns: 1fr 1fr; /* Two equal columns for buttons */
+  gap: 12px;                      /* 12px gap so they don't stick */
   margin-top: 10px;
 }
 
-/* Override small-input for grid usage */
+/* Input spans the entire top row */
 .water-row .small-input {
+  grid-column: 1 / -1;            /* Spans both columns */
   width: 100%;
   max-width: none;
   margin: 0;
+}
+
+/* Make buttons fill their columns */
+.water-row .quick-btn {
+  width: 100%;
 }
 
 /* Compact quick buttons */
