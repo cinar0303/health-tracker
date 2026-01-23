@@ -790,3 +790,19 @@ canvas {
 
 /* Viewer Grid Adjustments */
 .day-box.readonly { cursor: default; }
+
+
+/* Sample Card Style */
+.plan-card.sample-card {
+  border: 1px solid #8e44ad; /* Purple Border */
+  background: #1a1a2e;       /* Dark Purple/Blue tint */
+}
+
+.plan-card.sample-card .plan-title {
+  color: #d2b4de; /* Light Purple text */
+}
+
+.plan-card.sample-card:active {
+  background: #8e44ad;
+  border-color: #fff;
+}
