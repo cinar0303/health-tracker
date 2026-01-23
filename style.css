@@ -329,3 +329,304 @@ canvas {
 .menu-overlay.open {
   display: block;
 }
+
+/* ===============================
+   PLANNER PAGE
+   =============================== */
+
+/* The Grid: 2 columns, side-by-side */
+.plans-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+/* Empty State Text */
+.empty-msg {
+  grid-column: 1 / -1; /* Span full width */
+  text-align: center;
+  color: #888;
+  margin-top: 40px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Floating Action Button (+) */
+.fab-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 25px;
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+  background-color: #0a84ff;
+  color: white;
+  font-size: 32px;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 800; /* Above everything */
+}
+
+.fab-btn:active {
+  transform: scale(0.95);
+  background-color: #0070e0;
+}
+
+/* ===============================
+   PLAN CREATOR MODAL
+   =============================== */
+
+.modal-overlay {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal-content {
+  background: #1e1e1e;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 16px;
+  padding: 20px;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+  border: 1px solid #333;
+}
+
+/* Header & Tabs */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.plan-tabs {
+  background: #2a2a2a;
+  padding: 4px;
+  border-radius: 8px;
+  display: flex;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: #888;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #0a84ff;
+  color: white;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+/* Inputs */
+.plan-name-input {
+  width: 100%;
+  padding: 12px;
+  background: #2a2a2a;
+  border: 1px solid #0a84ff;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  margin-bottom: 15px;
+  box-sizing: border-box; /* Fix padding math */
+}
+
+.divider {
+  height: 1px;
+  background: #333;
+  margin: 15px 0;
+}
+
+.plan-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.small-btn {
+  width: auto;
+  padding: 8px 16px;
+  margin-bottom: 15px;
+  background-color: #333;
+}
+
+.save-btn {
+  background-color: #34c759; /* Green for Save */
+  margin-top: 20px;
+}
+
+/* Preview List */
+.preview-list li {
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  color: #ccc;
+}
+
+/* Plan Card (The Square) */
+.plan-card {
+  background-color: #2a2a2a;
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  border: 1px solid #333;
+  transition: transform 0.1s;
+}
+
+.plan-card:active {
+  transform: scale(0.98);
+  background-color: #333;
+}
+
+.plan-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.plan-count {
+  font-size: 13px;
+  color: #888;
+}
+
+
+/* ===============================
+   WEEKLY PLANNER UI
+   =============================== */
+
+.instruction-text {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+/* The Week Grid Layout */
+.week-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.week-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.day-box {
+  width: 18%; /* Fits 5 in a row perfectly */
+  aspect-ratio: 1; /* Makes it a square */
+  background: #333;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  padding: 2px;
+  text-align: center;
+}
+
+/* When you tap a day */
+.day-box.selected {
+  border-color: #0a84ff;
+  background: #2a2a2a;
+  transform: scale(1.05);
+}
+
+/* When a day has a plan assigned */
+.day-box.filled {
+  background: #0a84ff;
+  color: white;
+}
+
+.day-label {
+  font-weight: 700;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.day-plan-name {
+  font-size: 10px;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+/* The Sliding Tray (Carousel) */
+.plan-tray {
+  display: flex;
+  overflow-x: auto; /* Horizontal Scroll */
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.tray-item {
+  min-width: 80px;
+  height: 60px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 11px;
+  padding: 4px;
+  cursor: pointer;
+  flex-shrink: 0; /* Prevents squishing */
+}
+
+.tray-item:active {
+  background: #444;
+}
+
+/* Rest Day Button Style */
+.tray-item.rest-btn {
+  border-color: #ff5c5c;
+  color: #ff5c5c;
+}
