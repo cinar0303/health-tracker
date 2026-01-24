@@ -806,3 +806,35 @@ canvas {
   background: #8e44ad;
   border-color: #fff;
 }
+
+
+/* ===============================
+   DIET PAGE STYLES
+   =============================== */
+.diet-summary {
+  text-align: center;
+  padding: 10px;
+}
+
+.diet-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Half input, half AI button */
+  gap: 10px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+/* Meal List Item styling */
+.meal-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #333;
+}
+
+.meal-cal {
+  font-weight: bold;
+  color: #34c759; /* Green text */
+  margin-right: 10px;
+}
