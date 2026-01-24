@@ -11,6 +11,13 @@ const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 let smartDailyId = null;
 
+let dietLog = JSON.parse(localStorage.getItem("dietLog")) || []; 
+let dietHistory = JSON.parse(localStorage.getItem("dietHistory")) || []; 
+let calGoal = Number(localStorage.getItem("calGoal")) || 2000;
+let dailyCals = 0;
+
+
+
 
 // ===============================
 // SAMPLE ROUTINES DATA
@@ -632,7 +639,10 @@ let waterGoal = Number(localStorage.getItem("waterGoal")) || 2500;
 const today = getToday();
 
 if (lastDate && lastDate !== today) {
+  // 1. Save Water History
   saveWaterToHistory();
+
+  // 2. Save Exercise History
   if (exercises.length > 0) {
     exerciseHistory.push({
       date: lastDate,
@@ -640,10 +650,33 @@ if (lastDate && lastDate !== today) {
     });
     localStorage.setItem("exerciseHistory", JSON.stringify(exerciseHistory));
   }
+
+  // 3. Save Diet History (NEW BLOCK)
+  // We read directly from storage to avoid "variable not initialized" errors
+  let oldDietLog = JSON.parse(localStorage.getItem("dietLog")) || [];
+  
+  if (oldDietLog.length > 0) {
+     let oldDietHistory = JSON.parse(localStorage.getItem("dietHistory")) || [];
+     let totalCals = oldDietLog.reduce((sum, item) => sum + item.cals, 0);
+     
+     oldDietHistory.push({ 
+       date: lastDate, 
+       total: totalCals, 
+       meals: oldDietLog 
+     });
+     
+     localStorage.setItem("dietHistory", JSON.stringify(oldDietHistory));
+  }
+  // Clear the diet log in storage
+  localStorage.setItem("dietLog", JSON.stringify([]));
+
+  // 4. Reset Current Day Variables
   water = 0;
   exercises = [];
   localStorage.setItem("water", water);
   localStorage.setItem("exercises", JSON.stringify(exercises));
+  
+  // 5. Update Date to Today
   localStorage.setItem("lastDate", today);
 }
 
@@ -670,6 +703,10 @@ renderTrendCharts();
 renderPlansGrid(); 
 updateAllBanners();
 renderSampleGrid();
+renderDiet();
+renderDietHistory();
+
+
 
 // ===============================
 // 9. APP LOGIC (Water, Exercises, Charts)
@@ -1371,4 +1408,143 @@ function importSample(sampleId) {
   closePlanViewer();
   alert(`"${sample.name}" added to your Daily Routines!`);
 }
+
+// ===============================
+// DIET TRACKER LOGIC (Fixed & Upgraded)
+// ===============================
+// 1. GLOBAL VARIABLES (Crucial for Add Meal to work)
+
+// 2. RENDER THE PAGE
+function renderDiet() {
+  const list = document.getElementById("dietList");
+  if(!list) return; 
+  
+  list.innerHTML = "";
+  dailyCals = 0;
+
+  // Render List & Calculate Total
+  dietLog.forEach((item, index) => {
+    dailyCals += item.cals;
+
+    const li = document.createElement("li");
+    li.className = "meal-item";
+    li.innerHTML = `
+      <span>${item.name}</span>
+      <div>
+        <span class="meal-cal">${item.cals} kcal</span>
+        <button onclick="deleteMeal(${index})" style="background:none; border:none; color:#ff5c5c; cursor:pointer;">×</button>
+      </div>
+    `;
+    list.appendChild(li);
+  });
+
+  // Update Summary Display
+  document.getElementById("calTotalDisplay").textContent = dailyCals;
+  document.getElementById("calGoalDisplay").textContent = calGoal;
+  document.getElementById("calGoalInput").value = calGoal;
+
+  // Update Progress Bar
+  const percent = Math.min((dailyCals / calGoal) * 100, 100);
+  const fill = document.getElementById("calProgressFill");
+  fill.style.width = `${percent}%`;
+  fill.style.backgroundColor = (dailyCals > calGoal) ? "#ff5c5c" : "#34c759";
+}
+
+// 3. ADD MEAL FUNCTION
+function addMeal() {
+  const nameInput = document.getElementById("dietFoodInput");
+  const calInput = document.getElementById("dietCalInput");
+
+  // Get values
+  const name = nameInput.value.trim();
+  const cals = Number(calInput.value);
+
+  // Validate
+  if (!name) {
+    alert("Please enter a food name.");
+    return;
+  }
+  if (!cals || cals <= 0) {
+    alert("Please enter a valid calorie number.");
+    return;
+  }
+
+  // Add to log
+  dietLog.push({ name, cals });
+  saveDietData();
+  renderDiet();
+
+  // Clear Inputs
+  nameInput.value = "";
+  calInput.value = "";
+}
+
+// 4. DELETE MEAL
+function deleteMeal(index) {
+  dietLog.splice(index, 1);
+  saveDietData();
+  renderDiet();
+}
+
+// 5. UPDATE GOAL
+function updateCalGoal(val) {
+  if (val > 0) {
+    calGoal = Number(val);
+    localStorage.setItem("calGoal", calGoal);
+    renderDiet();
+  }
+}
+
+// 6. SAVE DATA helper
+function saveDietData() {
+  localStorage.setItem("dietLog", JSON.stringify(dietLog));
+}
+
+// 7. HISTORY RENDER
+function renderDietHistory() {
+  const list = document.getElementById("dietHistoryList");
+  if(!list) return;
+  list.innerHTML = "";
+
+  if (dietHistory.length === 0) {
+    list.innerHTML = "<p style='color:#666; font-size:12px;'>No history yet.</p>";
+    return;
+  }
+
+  dietHistory.slice().reverse().forEach(day => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+        <span>${day.date}</span>
+        <span style="color:#34c759; font-weight:bold;">${day.total} kcal</span>
+      </div>
+      <div style="font-size:12px; color:#888;">
+        ${day.meals.map(m => m.name).join(", ")}
+      </div>
+    `;
+    list.appendChild(li);
+  });
+}
+
+// 8. AI PROMPT (With ChatGPT Auto-Open)
+function copyDietPrompt() {
+  const food = document.getElementById("dietFoodInput").value;
+  if (!food) {
+    alert("Type the food first (e.g. '2 eggs and toast')");
+    return;
+  }
+
+  const prompt = `I am tracking my diet. Estimate the total calories for: "${food}". Return ONLY the number (e.g., 450). Do not write any text.`;
+  
+  navigator.clipboard.writeText(prompt).then(() => {
+    // Automatically ask to open ChatGPT
+    if(confirm("Prompt copied! Open ChatGPT now?")) {
+      window.open("https://chatgpt.com", "_blank"); 
+    }
+  }).catch(err => {
+    alert("Could not copy text. Manual copy needed.");
+  });
+}
+
+
 
