@@ -1526,7 +1526,9 @@ function renderDietHistory() {
   });
 }
 
-// 8. AI PROMPT (With ChatGPT Auto-Open)
+// ===============================
+// 8. AI PROMPT (Auto-Fill Version)
+// ===============================
 function copyDietPrompt() {
   const food = document.getElementById("dietFoodInput").value;
   if (!food) {
@@ -1534,13 +1536,20 @@ function copyDietPrompt() {
     return;
   }
 
+  // The Prompt
   const prompt = `I am tracking my diet. Estimate the total calories for: "${food}". Return ONLY the number (e.g., 450). Do not write any text.`;
   
+  // 1. Copy to Clipboard (Backup mechanism)
   navigator.clipboard.writeText(prompt).then(() => {
-    // Automatically ask to open ChatGPT
-    if(confirm("Prompt copied! Open ChatGPT now?")) {
-      window.open("https://chatgpt.com", "_blank"); 
+    
+    // 2. Open ChatGPT with the prompt in the URL
+    // encodeURIComponent converts spaces and quotes into safe URL text
+    const url = "https://chatgpt.com/?q=" + encodeURIComponent(prompt);
+    
+    if(confirm("Prompt ready! Open ChatGPT?")) {
+      window.open(url, "_blank"); 
     }
+
   }).catch(err => {
     alert("Could not copy text. Manual copy needed.");
   });
