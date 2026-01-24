@@ -25,6 +25,7 @@
       <a href="#" onclick="showPage('home')">💧 Water Tracker</a>
       <a href="#" onclick="showPage('exercises')">🏋️ Exercises</a>
       <a href="#" onclick="showPage('planner')">📅 Planner</a>
+      <a href="#" onclick="showPage('diet')">🥗 Diet Tracker</a>
     </nav>
   </div>
   <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
@@ -138,6 +139,55 @@
       </div>
     <button class="fab-btn" onclick="openPlanCreator()">+</button>
   </div>
+
+  <div id="page-diet" class="page-section" style="display: none;">
+    <section>
+      <h2>🥗 Calories Today</h2>
+      
+      <div class="diet-summary">
+        <h1 id="calTotalDisplay" style="color:#34c759; margin-bottom:5px;">0</h1>
+        <p style="color:#888; margin-top:0;"> / <span id="calGoalDisplay">2000</span> kcal</p>
+      </div>
+
+      <div class="water-progress-bar">
+        <div id="calProgressFill" style="background-color: #34c759;"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3>Log Meal</h3>
+      <input id="dietFoodInput" type="text" placeholder="What did you eat?" />
+      
+      <div class="diet-row">
+        <input id="dietCalInput" type="number" placeholder="Calories" class="small-input" style="margin:0; width:100%;" />
+        
+        <button class="quick-btn" style="background-color:#8e44ad; width:auto;" onclick="copyDietPrompt()">
+          🤖 AI Prompt
+        </button>
+      </div>
+
+      <button class="action-btn" style="margin-top:15px; background-color:#34c759;" onclick="addMeal()">Add Meal</button>
+
+    </section>
+
+    <section>
+      <h2>🍽️ Today's Meals</h2>
+      <ul id="dietList"></ul>
+    </section>
+
+    <section>
+      <h2>📅 Diet History</h2>
+      <ul id="dietHistoryList"></ul>
+    </section>
+
+    <section>
+      <h2>⚙️ Settings</h2>
+      <p style="font-size:14px; color:#aaa;">Daily Calorie Goal:</p>
+      <input id="calGoalInput" type="number" placeholder="e.g. 2000" onchange="updateCalGoal(this.value)" />
+    </section>
+  </div>
+
+
 
   <div id="planCreatorModal" class="modal-overlay">
     <div class="modal-content">
