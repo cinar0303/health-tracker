@@ -605,8 +605,14 @@ function deletePlan() {
 
 function startWorkout() {
   if (activePlanId) {
-    closePlanViewer();
-    openActiveWorkout(activePlanId);
+    // 1. Save the ID temporarily so we don't lose it
+    const idToStart = activePlanId;
+    
+    // 2. Close the viewer (which wipes the global activePlanId)
+    closePlanViewer(); 
+    
+    // 3. Open the workout using the SAVED ID
+    openActiveWorkout(idToStart); 
   }
 }
 
